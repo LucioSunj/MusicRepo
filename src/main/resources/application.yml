@@ -8,7 +8,7 @@ spring:
     name: CPT202Music
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/CPT202Music
+    url: jdbc:mysql://localhost:3307/Music_Repo
     username: root
     password: 123456
 
