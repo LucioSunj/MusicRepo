@@ -142,33 +142,26 @@ public class EmailServiceImpl implements EmailService {
 
         // Get the stored verification code from Redis
         String redisKey = RedisConstants.VERIFY_CODE_KEY + receiveEmail;
-        log.info("Attempting to get verification code from Redis with key: {}", redisKey);
-        
-        try {
-            String storedCode = stringRedisTemplate.opsForValue().get(redisKey);
-            log.info("Retrieved code from Redis: {}", storedCode);
-            
-            if (storedCode == null) {
-                log.error("No verification code found for email: {}", receiveEmail);
-                return false;
-            }
+        System.out.println(redisKey);
+        String storedCode = stringRedisTemplate.opsForValue().get(redisKey);
 
-            // Compare the codes
-            boolean isValid = storedCode.equals(code);
-            
-            if (isValid) {
-                // Delete the verification code from Redis after successful verification
-                stringRedisTemplate.delete(redisKey);
-                log.info("Verification code validated successfully for email: {}", receiveEmail);
-            } else {
-                log.error("Invalid verification code for email: {}. Expected: {}, Got: {}", receiveEmail, storedCode, code);
-            }
-
-            return isValid;
-        } catch (Exception e) {
-            log.error("Error while checking verification code: {}", e.getMessage(), e);
+        if (storedCode == null) {
+            log.error("No verification code found for email: {}", receiveEmail);
             return false;
         }
+
+        // Compare the codes
+        boolean isValid = storedCode.equals(code);
+        
+        if (isValid) {
+            // Delete the verification code from Redis after successful verification
+            stringRedisTemplate.delete(redisKey);
+            log.info("Verification code validated successfully for email: {}", receiveEmail);
+        } else {
+            log.error("Invalid verification code for email: {}", receiveEmail);
+        }
+
+        return isValid;
     }
 
     // Generates a 6-digit verification code

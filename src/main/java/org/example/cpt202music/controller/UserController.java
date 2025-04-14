@@ -38,7 +38,9 @@ public class UserController {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        String email = userRegisterRequest.getEmail();
+        String code = userRegisterRequest.getCode();
+        long result = userService.userRegister(userAccount, userPassword, checkPassword,email, code);
         return ResultUtils.success(result);
     }
 

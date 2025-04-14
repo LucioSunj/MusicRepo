@@ -14,12 +14,14 @@ import org.example.cpt202music.model.entity.User;
 import org.example.cpt202music.model.enums.UserRoleEnum;
 import org.example.cpt202music.model.vo.LoginUserVO;
 import org.example.cpt202music.model.vo.UserVO;
+import org.example.cpt202music.service.EmailService;
 import org.example.cpt202music.service.UserService;
 import org.example.cpt202music.mapper.UserMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
@@ -38,6 +40,9 @@ import static org.example.cpt202music.constant.UserConstant.USER_LOGIN_STATE;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService{
 
+    @Resource
+    private EmailService emailService;
+
     /**
      *
      * @param userAccount   用户账户
@@ -46,7 +51,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return
      */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String email, String code) {
         // 1. 校验
         if (StrUtil.hasBlank(userAccount, userPassword, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -73,6 +78,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptPassword);
+        Boolean verified = emailService.checkVerificationCode(email, code);
+        if (!verified) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
+        user.setEmail(email);
         user.setUserName("无名");
         user.setUserRole(UserRoleEnum.USER.getValue());
         // 这里的save 是mybatis plus框架做的事情，他在save的同时帮助你把id赋值创建，所以这里可以getid
