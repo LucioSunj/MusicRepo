@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Customer Files ###
+application-prod.yml
+application-local.yml
+
 ### STS ###
 .apt_generated
 .classpath

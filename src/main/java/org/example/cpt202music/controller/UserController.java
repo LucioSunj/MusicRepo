@@ -15,6 +15,7 @@ import org.example.cpt202music.model.vo.LoginUserVO;
 import org.example.cpt202music.model.vo.UserVO;
 import org.example.cpt202music.service.UserService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,7 +39,9 @@ public class UserController {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        String email = userRegisterRequest.getEmail();
+        String code = userRegisterRequest.getCode();
+        long result = userService.userRegister(userAccount, userPassword, checkPassword,email, code);
         return ResultUtils.success(result);
     }
 
@@ -172,5 +175,4 @@ public class UserController {
         userVOPage.setRecords(userVOList);
         return ResultUtils.success(userVOPage);
     }
-
 }

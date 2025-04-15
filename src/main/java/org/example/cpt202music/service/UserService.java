@@ -24,7 +24,7 @@ public interface UserService extends IService<User> {
      * @param checkPassword 校验密码
      * @return 新用户 id
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(String userAccount, String userPassword, String checkPassword, String email, String code);
     String getEncryptPassword(String userPassword);
 
     /**
@@ -52,6 +52,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 获取脱敏后的用户信息
+     *
      * @param user
      * @return
      */
@@ -83,4 +84,14 @@ public interface UserService extends IService<User> {
      * @return
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+
+
+    /**
+     * 是否为管理员
+     *
+     * @param user
+     * @return
+     */
+    boolean isAdmin(User user);
+
 }
