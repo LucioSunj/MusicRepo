@@ -72,3 +72,5 @@ ALTER TABLE music_file
 CREATE INDEX idx_reviewStatus ON music_file (reviewStatus);
 
 
+ALTER TABLE `user` ADD COLUMN `user_status` INT DEFAULT 0 COMMENT '用户状态：0-正常，1-被封禁';
+ALTER TABLE `user` ADD COLUMN `banReason` varchar(258)  COMMENT '用户状态：0-正常，1-被封禁';

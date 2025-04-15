@@ -78,6 +78,16 @@ public class User implements Serializable {
     private Integer isDelete;
 
 
+    /**
+     * 用户状态：0-正常，1-被封禁
+     */
+    private Integer userStatus;
+
+    /**
+     * 封禁原因
+     */
+    private String banReason;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

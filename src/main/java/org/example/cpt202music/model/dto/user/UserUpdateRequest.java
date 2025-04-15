@@ -35,5 +35,10 @@ public class UserUpdateRequest implements Serializable {
      */
     private String userRole;
 
+    /**
+     * 用户状态：0-正常，1-被封禁
+     */
+    private Integer userStatus;
+
     private static final long serialVersionUID = 1L;
 }

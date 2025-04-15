@@ -175,4 +175,23 @@ public class UserController {
         userVOPage.setRecords(userVOList);
         return ResultUtils.success(userVOPage);
     }
+
+
+
+    /**
+     * 封禁用户并记录原因（仅管理员）
+     */
+    @PostMapping("/ban/with-reason")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> banUserWithReason(@RequestBody UserBanRequest request) {
+        if (request == null || request.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = new User();
+        user.setId(request.getId());
+        user.setUserStatus(1);
+        user.setBanReason(request.getBanReason());
+        boolean result = userService.updateById(user);
+        return ResultUtils.success(result);
+    }
 }

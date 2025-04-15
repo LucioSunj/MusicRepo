@@ -118,6 +118,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
+
+        // 检查用户是否被封禁
+        if (user.getUserStatus() != null && user.getUserStatus() == 1) {
+            String reason = user.getBanReason() != null ? user.getBanReason() : "未说明原因";
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "账号已被封禁，原因：" + reason);
+        }
         // 3. 记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
