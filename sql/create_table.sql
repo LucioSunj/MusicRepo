@@ -2,6 +2,8 @@
 create database if not exists Music_Repo;
 use Music_Repo;
 
+-- 删除表
+DROP TABLE IF EXISTS user;
 
 
 -- 用户表

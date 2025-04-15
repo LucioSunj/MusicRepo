@@ -11,6 +11,32 @@ spring:
     url: jdbc:mysql://118.31.173.230:3306/music
     username: music
     password: 123456
+#  # Redis Configuration
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    timeout: 5000
+  #邮件服务配置
+  mail:
+    #smtp服务主机  163邮箱则为smtp.163.com
+    host: smtp.qq.com
+    #服务协议
+    protocol: smtp
+    # 编码集
+    default-encoding: UTF-8
+    #发送邮件的账户,开通服务的邮箱
+    username: 2667180048@qq.com
+    #授权码
+    password: hrzskrmrhxwneafd
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 
 #  # Redis Configuration
   redis:
