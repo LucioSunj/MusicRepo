@@ -19,6 +19,8 @@ import org.example.cpt202music.mapper.UserMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.example.cpt202music.manager.FileManager;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +44,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Resource
     private EmailService emailService;
 
+    @Resource
+    private FileManager fileManager;
+
     /**
      *
      * @param userAccount   用户账户
@@ -50,7 +55,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return
      */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword, String email, String code) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String email, String code, MultipartFile avatarFile) {
         // 1. 校验
         if (StrUtil.hasBlank(userAccount, userPassword, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -84,6 +89,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setEmail(email);
         user.setUserName("无名");
         user.setUserRole(UserRoleEnum.USER.getValue());
+        
+        // 5. 处理头像上传
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            try {
+                String avatarUrl = fileManager.uploadImage(avatarFile, "avatar/" + userAccount);
+                user.setUserAvatar(avatarUrl);
+            } catch (Exception e) {
+                log.error("头像上传失败", e);
+                // 头像上传失败不影响注册流程，可以后续再设置头像
+            }
+        }
+        
         // 这里的save 是mybatis plus框架做的事情，他在save的同时帮助你把id赋值创建，所以这里可以getid
         boolean saveResult = this.save(user);
         if (!saveResult) {

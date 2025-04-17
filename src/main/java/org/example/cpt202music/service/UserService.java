@@ -6,6 +6,7 @@ import org.example.cpt202music.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.cpt202music.model.vo.LoginUserVO;
 import org.example.cpt202music.model.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -24,7 +25,7 @@ public interface UserService extends IService<User> {
      * @param checkPassword 校验密码
      * @return 新用户 id
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword, String email, String code);
+    long userRegister(String userAccount, String userPassword, String checkPassword, String email, String code, MultipartFile avatarFile);
     String getEncryptPassword(String userPassword);
 
     /**

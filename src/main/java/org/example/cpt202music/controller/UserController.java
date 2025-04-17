@@ -17,6 +17,7 @@ import org.example.cpt202music.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +34,8 @@ public class UserController {
      * 用户注册
      */
     @PostMapping("/register")
-    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public BaseResponse<Long> userRegister(@RequestPart("userRegisterRequest") UserRegisterRequest userRegisterRequest,
+                                          @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile) {
         // 这里用到的是自己的工具类
         ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
         String userAccount = userRegisterRequest.getUserAccount();
@@ -41,7 +43,7 @@ public class UserController {
         String checkPassword = userRegisterRequest.getCheckPassword();
         String email = userRegisterRequest.getEmail();
         String code = userRegisterRequest.getCode();
-        long result = userService.userRegister(userAccount, userPassword, checkPassword,email, code);
+        long result = userService.userRegister(userAccount, userPassword, checkPassword, email, code, avatarFile);
         return ResultUtils.success(result);
     }
 

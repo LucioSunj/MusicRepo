@@ -284,42 +284,34 @@ public class FileManager {
 
 
     /**
-     * 上传图片文件
+     * 上传图片
      *
-     * @param multipartFile    图片文件
+     * @param multipartFile 文件
      * @param uploadPathPrefix 上传路径前缀
      * @return 图片URL
      */
     public String uploadImage(MultipartFile multipartFile, String uploadPathPrefix) {
-        // 校验图片文件（文件类型、大小等）
-        validImage(multipartFile);
-
-        // 生成文件名
+        // 图片上传地址
         String uuid = RandomUtil.randomString(16);
         String originFilename = multipartFile.getOriginalFilename();
-        String originFileExtension = FileUtil.getSuffix(originFilename);
-        String uploadFilename = String.format("%s_%s_cover.%s",
-                DateUtil.formatDate(new Date()),
-                uuid,
-                originFileExtension);
+        String uploadFilename = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid, 
+                FileUtil.getSuffix(originFilename));
         String uploadPath = String.format("/%s/%s", uploadPathPrefix, uploadFilename);
-
         File file = null;
+        
         try {
             // 创建临时文件
-            String tempDir = System.getProperty("java.io.tmpdir");
-            String tempFilePath = tempDir + File.separator + "cover_temp_" + uuid + "." + originFileExtension;
-            file = new File(tempFilePath);
+            file = File.createTempFile("temp_", "." + FileUtil.getSuffix(originFilename));
             multipartFile.transferTo(file);
-
-            // 上传到云存储
+            
+            // 上传图片
             cosManager.putObject(uploadPath, file);
             return cosClientConfig.getHost() + uploadPath;
         } catch (Exception e) {
-            log.error("封面上传失败: {}", e.getMessage(), e);
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "封面上传失败: " + e.getMessage());
+            log.error("图片上传到对象存储失败", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
         } finally {
-            deleteTempFile(file);
+            this.deleteTempFile(file);
         }
     }
 
