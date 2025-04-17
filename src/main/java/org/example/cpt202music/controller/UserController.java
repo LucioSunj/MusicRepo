@@ -9,6 +9,7 @@ import org.example.cpt202music.constant.UserConstant;
 import org.example.cpt202music.exception.BusinessException;
 import org.example.cpt202music.exception.ErrorCode;
 import org.example.cpt202music.exception.ThrowUtils;
+import org.example.cpt202music.manager.FileManager;
 import org.example.cpt202music.model.dto.user.*;
 import org.example.cpt202music.model.entity.User;
 import org.example.cpt202music.model.vo.LoginUserVO;
@@ -30,12 +31,14 @@ public class UserController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private FileManager fileManager;
+
     /**
      * 用户注册
      */
     @PostMapping("/register")
-    public BaseResponse<Long> userRegister(@RequestPart("userRegisterRequest") UserRegisterRequest userRegisterRequest,
-                                          @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile) {
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         // 这里用到的是自己的工具类
         ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
         String userAccount = userRegisterRequest.getUserAccount();
@@ -43,8 +46,36 @@ public class UserController {
         String checkPassword = userRegisterRequest.getCheckPassword();
         String email = userRegisterRequest.getEmail();
         String code = userRegisterRequest.getCode();
-        long result = userService.userRegister(userAccount, userPassword, checkPassword, email, code, avatarFile);
+        
+        // 不包含头像上传，传null
+        long result = userService.userRegister(userAccount, userPassword, checkPassword, email, code, null);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 上传用户头像
+     */
+    @PostMapping("/upload/avatar")
+    public BaseResponse<String> uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        
+        try {
+            // 上传头像
+            String avatarUrl = fileManager.uploadImage(file, "avatar/" + loginUser.getUserAccount());
+            
+            // 更新用户头像
+            User user = new User();
+            user.setId(loginUser.getId());
+            user.setUserAvatar(avatarUrl);
+            boolean result = userService.updateById(user);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新头像失败");
+            
+            return ResultUtils.success(avatarUrl);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "头像上传失败");
+        }
     }
 
     /**
