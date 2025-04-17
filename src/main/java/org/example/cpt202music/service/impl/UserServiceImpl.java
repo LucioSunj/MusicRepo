@@ -120,7 +120,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         // 检查用户是否被封禁
-        if (user.getUserStatus() != null && user.getUserStatus() == 1) {
+        if (user.getUser_status() != null && user.getUser_status() == 1) {
             String reason = user.getBanReason() != null ? user.getBanReason() : "未说明原因";
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "账号已被封禁，原因：" + reason);
         }

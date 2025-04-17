@@ -53,16 +53,14 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 # 接口文档配置
+# 接口文档配置
 knife4j:
   enable: true
   openapi:
-    title: 接口文档
+    title: "接口文档"
     version: 1.0
     group:
       default:
-        group-name: 默认分组
         api-rule: package
         api-rule-resources:
           - org.example.cpt202music.controller
-          -
-

@@ -189,7 +189,7 @@ public class UserController {
         }
         User user = new User();
         user.setId(request.getId());
-        user.setUserStatus(1);
+        user.setUser_status(1);
         user.setBanReason(request.getBanReason());
         boolean result = userService.updateById(user);
         return ResultUtils.success(result);

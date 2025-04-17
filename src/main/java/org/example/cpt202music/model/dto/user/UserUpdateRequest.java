@@ -38,7 +38,7 @@ public class UserUpdateRequest implements Serializable {
     /**
      * 用户状态：0-正常，1-被封禁
      */
-    private Integer userStatus;
+    private Integer user_status;
 
     private static final long serialVersionUID = 1L;
 }

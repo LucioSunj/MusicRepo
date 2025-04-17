@@ -20,6 +20,7 @@ import org.example.cpt202music.model.dto.MusicFile.*;
 import org.example.cpt202music.model.entity.MusicFile;
 import org.example.cpt202music.model.entity.User;
 import org.example.cpt202music.model.enums.MusicFileReviewStatusEnum;
+import org.example.cpt202music.model.vo.MusicFilePlaylistsVO;
 import org.example.cpt202music.model.vo.MusicFileTagCategory;
 import org.example.cpt202music.model.vo.MusicFileVO;
 import org.example.cpt202music.service.MusicFileService;
@@ -248,7 +249,7 @@ public class MusicFileController {
      * @return 分类及对应的音乐列表
      */
     @GetMapping("/playlists")
-    public BaseResponse<Map<String, List<MusicFileVO>>> getAllPlaylists(HttpServletRequest request) {
+    public BaseResponse<MusicFilePlaylistsVO> getAllPlaylists(HttpServletRequest request) {
         // 获取所有分类
         BaseResponse<MusicFileTagCategory> tagCategoryResponse = listMusicFileTagCategory();
         List<String> categories = tagCategoryResponse.getData().getCategoryList();
@@ -260,7 +261,7 @@ public class MusicFileController {
             playlists.put(category, playlist);
         }
 
-        return ResultUtils.success(playlists);
+        return ResultUtils.success(new MusicFilePlaylistsVO(playlists));
     }
 
     @PostMapping("/review")
@@ -274,3 +275,5 @@ public class MusicFileController {
         return ResultUtils.success(true);
     }
 }
+
+
