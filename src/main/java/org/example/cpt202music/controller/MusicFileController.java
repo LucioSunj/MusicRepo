@@ -2,6 +2,7 @@ package org.example.cpt202music.controller;
 
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qcloud.cos.model.COSObject;
 import com.qcloud.cos.model.COSObjectInputStream;
@@ -156,6 +157,7 @@ public class MusicFileController {
         return ResultUtils.success(musicFilePage);
     }
 
+
     /**
      * 分页获取图片列表（封装类）
      */
@@ -273,6 +275,77 @@ public class MusicFileController {
         User loginUser = userService.getLoginUser(request);
         musicFileService.doMusicFileReview(musicFileReviewRequest, loginUser);
         return ResultUtils.success(true);
+    }
+
+
+
+    /**
+     * 获取待审核的音乐文件列表（管理员）
+     */
+    @GetMapping("/admin/list/pending")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<MusicFile>> listPendingMusicFiles(
+            @RequestParam(defaultValue = "1") long current,
+            @RequestParam(defaultValue = "10") long pageSize) {
+
+        // 创建查询请求对象
+        MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
+        musicFileQueryRequest.setReviewStatus(0);  // 待审核
+
+        // 构建查询条件
+        QueryWrapper<MusicFile> queryWrapper = musicFileService.getQueryWrapper(musicFileQueryRequest);
+
+        // 执行分页查询
+        Page<MusicFile> musicFilePage = musicFileService.page(
+                new Page<>(current, pageSize), queryWrapper);
+
+        return ResultUtils.success(musicFilePage);
+    }
+
+    /**
+     * 获取审核通过的音乐文件列表（管理员）
+     */
+    @GetMapping("/admin/list/approved")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<MusicFile>> listApprovedMusicFiles(
+            @RequestParam(defaultValue = "1") long current,
+            @RequestParam(defaultValue = "10") long pageSize) {
+
+        // 创建查询请求对象
+        MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
+        musicFileQueryRequest.setReviewStatus(1);  // 已通过
+
+        // 构建查询条件
+        QueryWrapper<MusicFile> queryWrapper = musicFileService.getQueryWrapper(musicFileQueryRequest);
+
+        // 执行分页查询
+        Page<MusicFile> musicFilePage = musicFileService.page(
+                new Page<>(current, pageSize), queryWrapper);
+
+        return ResultUtils.success(musicFilePage);
+    }
+
+    /**
+     * 获取审核未通过的音乐文件列表（管理员）
+     */
+    @GetMapping("/admin/list/rejected")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<MusicFile>> listRejectedMusicFiles(
+            @RequestParam(defaultValue = "1") long current,
+            @RequestParam(defaultValue = "10") long pageSize) {
+
+        // 创建查询请求对象
+        MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
+        musicFileQueryRequest.setReviewStatus(-1);  // 未通过
+
+        // 构建查询条件
+        QueryWrapper<MusicFile> queryWrapper = musicFileService.getQueryWrapper(musicFileQueryRequest);
+
+        // 执行分页查询
+        Page<MusicFile> musicFilePage = musicFileService.page(
+                new Page<>(current, pageSize), queryWrapper);
+
+        return ResultUtils.success(musicFilePage);
     }
 }
 
