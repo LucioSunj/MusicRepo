@@ -167,31 +167,29 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
     }
 
     @Override
-    public QueryWrapper<MusicFile> getQueryWrapper(MusicFileQueryRequest MusicFileQueryRequest) {
+    public QueryWrapper<MusicFile> getQueryWrapper(MusicFileQueryRequest musicFileQueryRequest) {
         QueryWrapper<MusicFile> queryWrapper = new QueryWrapper<>();
-        if (MusicFileQueryRequest == null){
+        if (musicFileQueryRequest == null){
             return queryWrapper;
         }
         // 从对象中取值
+        Long id = musicFileQueryRequest.getId();
+        String name = musicFileQueryRequest.getName();
+        String introduction = musicFileQueryRequest.getIntroduction();
+        String category = musicFileQueryRequest.getCategory();
+        List<String> tags = musicFileQueryRequest.getTags();
+        Long fileSize = musicFileQueryRequest.getFileSize();
+        Integer duration = musicFileQueryRequest.getDuration();
+        String fileFormat = musicFileQueryRequest.getFileFormat();
+        Long userId = musicFileQueryRequest.getUserId();
+        Integer bitRate = musicFileQueryRequest.getBitRate();
+        String searchText = musicFileQueryRequest.getSearchText();
+        Integer reviewStatus = musicFileQueryRequest.getReviewStatus();
+        String reviewMessage = musicFileQueryRequest.getReviewMessage();
+        Long reviewerId = musicFileQueryRequest.getReviewerId();
 
-        Long id = MusicFileQueryRequest.getId();
-        String name = MusicFileQueryRequest.getName();
-        String introduction = MusicFileQueryRequest.getIntroduction();
-        String category = MusicFileQueryRequest.getCategory();
-        List<String> tags = MusicFileQueryRequest.getTags();
-        Long fileSize = MusicFileQueryRequest.getFileSize();
-        Integer duration = MusicFileQueryRequest.getDuration();
-        String fileFormat = MusicFileQueryRequest.getFileFormat();
-        Long userId = MusicFileQueryRequest.getUserId();
-        Integer bitRate = MusicFileQueryRequest.getBitRate();
-        String searchText = MusicFileQueryRequest.getSearchText();
-        Integer reviewStatus = MusicFileQueryRequest.getReviewStatus();
-        String reviewMessage = MusicFileQueryRequest.getReviewMessage();
-        Long reviewerId = MusicFileQueryRequest.getReviewerId();
-
-        String sortField = MusicFileQueryRequest.getSortField();
-        String sortOrder = MusicFileQueryRequest.getSortOrder();
-
+        String sortField = musicFileQueryRequest.getSortField();
+        String sortOrder = musicFileQueryRequest.getSortOrder();
 
         // 从多字段中搜索
         if (StrUtil.isNotBlank(searchText)) {
@@ -201,18 +199,40 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
                     .like("introduction", searchText)
             );
         }
-        queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
-        queryWrapper.eq(ObjUtil.isNotEmpty(userId), "userId", userId);
-        queryWrapper.like(StrUtil.isNotBlank(name), "name", name);
-        queryWrapper.like(StrUtil.isNotBlank(introduction), "introduction", introduction);
-        queryWrapper.like(StrUtil.isNotBlank(fileFormat), "fileFormat", fileFormat);
-        queryWrapper.like(StrUtil.isNotBlank(reviewMessage), "reviewMessage", reviewMessage);
-        queryWrapper.eq(StrUtil.isNotBlank(category), "category", category);
-        queryWrapper.eq(ObjUtil.isNotEmpty(fileSize), "fileSize", fileSize);
-        queryWrapper.eq(ObjUtil.isNotEmpty(duration), "duration", duration);
-        queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "reviewStatus", reviewStatus);
-        queryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), "reviewerId", reviewerId);
-
+        // 只有非null且有意义的值才加入查询条件
+        if (id != null && id > 0) {
+            queryWrapper.eq("id", id);
+        }
+        if (userId != null && userId > 0) {
+            queryWrapper.eq("userId", userId);
+        }
+        if (StrUtil.isNotBlank(name)) {
+            queryWrapper.like("name", name);
+        }
+        if (StrUtil.isNotBlank(introduction)) {
+            queryWrapper.like("introduction", introduction);
+        }
+        if (StrUtil.isNotBlank(fileFormat)) {
+            queryWrapper.like("fileFormat", fileFormat);
+        }
+        if (StrUtil.isNotBlank(reviewMessage)) {
+            queryWrapper.like("reviewMessage", reviewMessage);
+        }
+        if (StrUtil.isNotBlank(category)) {
+            queryWrapper.eq("category", category);
+        }
+        if (fileSize != null && fileSize > 0) {
+            queryWrapper.eq("fileSize", fileSize);
+        }
+        if (duration != null && duration > 0) {
+            queryWrapper.eq("duration", duration);
+        }
+        if (reviewStatus != null) {
+            queryWrapper.eq("reviewStatus", reviewStatus);
+        }
+        if (reviewerId != null && reviewerId > 0) {
+            queryWrapper.eq("reviewerId", reviewerId);
+        }
 
         // Json 数组查询
         if (CollUtil.isNotEmpty(tags)) {
@@ -222,9 +242,13 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         }
 
         // 排序
-        queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
+        if (StrUtil.isNotEmpty(sortField) && StrUtil.isNotEmpty(sortOrder)) {
+            queryWrapper.orderBy(true, sortOrder.equals("ascend"), sortField);
+        } else {
+            // 默认按创建时间降序
+            queryWrapper.orderByDesc("createTime");
+        }
         return queryWrapper;
-
     }
 
 
