@@ -437,6 +437,19 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         }
     }
 
+    /**
+     * Get QueryWrapper for approved music files (reviewStatus == 1).
+     *
+     * @return QueryWrapper<MusicFile>
+     */
+    @Override
+    public QueryWrapper<MusicFile> getApprovedMusicQueryWrapper() {
+        QueryWrapper<MusicFile> queryWrapper = new QueryWrapper<>();
+        // Filter for approved music files (reviewStatus == 1, assuming PASS value is 1)
+        queryWrapper.eq("reviewStatus", MusicFileReviewStatusEnum.PASS.getValue());
+        return queryWrapper;
+    }
+
 }
 
 

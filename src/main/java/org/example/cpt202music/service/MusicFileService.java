@@ -96,4 +96,11 @@ public interface MusicFileService extends IService<MusicFile> {
      * @param loginUser
      */
     void fillReviewParams(MusicFile musicFile, User loginUser);
+
+    /**
+     * 获取已审核的音乐文件查询包装器
+     *
+     * @return 已审核的音乐文件查询包装器
+     */
+    QueryWrapper<MusicFile> getApprovedMusicQueryWrapper();
 }

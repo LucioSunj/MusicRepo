@@ -159,7 +159,7 @@ public class MusicFileController {
 
 
     /**
-     * 分页获取图片列表（封装类）
+     * 分页获取音乐列表（封装类）
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<MusicFileVO>> listMusicFileVOByPage(@RequestBody MusicFileQueryRequest musicFileQueryRequest,
@@ -169,10 +169,10 @@ public class MusicFileController {
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         // 普通用户默认只能看到审核通过的数据
-        musicFileQueryRequest.setReviewStatus(MusicFileReviewStatusEnum.PASS.getValue());
+//        musicFileQueryRequest.setReviewStatus(MusicFileReviewStatusEnum.PASS.getValue());
         // 查询数据库
         Page<MusicFile> MusicFilePage = musicFileService.page(new Page<>(current, size),
-                musicFileService.getQueryWrapper(musicFileQueryRequest));
+                musicFileService.getApprovedMusicQueryWrapper());
         // 获取封装类
         return ResultUtils.success(musicFileService.getMusicFileVOPage(MusicFilePage, request));
     }
@@ -346,6 +346,45 @@ public class MusicFileController {
                 new Page<>(current, pageSize), queryWrapper);
 
         return ResultUtils.success(musicFilePage);
+    }
+
+    /**
+     * 分页获取指定分类的音乐列表（封装类）
+     *
+     * @param category 音乐分类
+     * @param current  当前页码
+     * @param pageSize 页面大小
+     * @param request  HTTP请求对象
+     * @return 分页的音乐列表
+     */
+    @GetMapping("/list/page/category/{category}")
+    public BaseResponse<Page<MusicFileVO>> listMusicFileVOByCategoryPage(
+            @PathVariable("category") String category,
+            @RequestParam(defaultValue = "1") long current,
+            @RequestParam(defaultValue = "10") long pageSize,
+            HttpServletRequest request) {
+
+        // 限制爬虫
+        ThrowUtils.throwIf(pageSize > 20, ErrorCode.PARAMS_ERROR);
+
+        // 构建查询条件
+        MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
+        musicFileQueryRequest.setCurrent((int) current);
+        musicFileQueryRequest.setPageSize((int) pageSize);
+        musicFileQueryRequest.setCategory(category);
+        List<String> tags = new ArrayList<>();
+        tags.add(category);
+        musicFileQueryRequest.setTags(tags);
+
+        // 普通用户默认只能看到审核通过的数据
+        musicFileQueryRequest.setReviewStatus(MusicFileReviewStatusEnum.PASS.getValue());
+
+        // 查询数据库
+        Page<MusicFile> musicFilePage = musicFileService.page(new Page<>(current, pageSize),
+                musicFileService.getQueryWrapper(musicFileQueryRequest));
+
+        // 获取封装类
+        return ResultUtils.success(musicFileService.getMusicFileVOPage(musicFilePage, request));
     }
 }
 
