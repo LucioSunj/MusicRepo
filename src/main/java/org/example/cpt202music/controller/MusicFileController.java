@@ -386,6 +386,42 @@ public class MusicFileController {
         // 获取封装类
         return ResultUtils.success(musicFileService.getMusicFileVOPage(musicFilePage, request));
     }
+    
+    /**
+     * 模糊搜索音乐文件（可搜索标签、分类、歌名、艺术家等）
+     *
+     * @param searchText 搜索关键词
+     * @param current 当前页码
+     * @param pageSize 页面大小
+     * @param request HTTP请求对象
+     * @return 符合条件的音乐文件列表
+     */
+    @GetMapping("/search")
+    public BaseResponse<Page<MusicFileVO>> searchMusicFiles(
+            @RequestParam String searchText,
+            @RequestParam(defaultValue = "1") long current,
+            @RequestParam(defaultValue = "10") long pageSize,
+            HttpServletRequest request) {
+        
+        // 限制爬虫
+        ThrowUtils.throwIf(pageSize > 20, ErrorCode.PARAMS_ERROR);
+        
+        // 构建查询条件
+        MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
+        musicFileQueryRequest.setCurrent((int) current);
+        musicFileQueryRequest.setPageSize((int) pageSize);
+        musicFileQueryRequest.setSearchText(searchText);
+        
+        // 普通用户默认只能看到审核通过的数据
+        musicFileQueryRequest.setReviewStatus(MusicFileReviewStatusEnum.PASS.getValue());
+        
+        // 查询数据库
+        Page<MusicFile> musicFilePage = musicFileService.page(new Page<>(current, pageSize),
+                musicFileService.getFuzzySearchQueryWrapper(musicFileQueryRequest));
+        
+        // 获取封装类
+        return ResultUtils.success(musicFileService.getMusicFileVOPage(musicFilePage, request));
+    }
 }
 
 

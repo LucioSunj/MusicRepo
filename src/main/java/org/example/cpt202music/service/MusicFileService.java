@@ -103,4 +103,13 @@ public interface MusicFileService extends IService<MusicFile> {
      * @return 已审核的音乐文件查询包装器
      */
     QueryWrapper<MusicFile> getApprovedMusicQueryWrapper();
+
+    /**
+     * 获取用于模糊搜索的查询包装器
+     * 该方法用于在多个字段（标签、分类、歌名、艺术家等）中进行模糊搜索
+     *
+     * @param musicFileQueryRequest 查询请求对象，包含搜索文本
+     * @return 配置了模糊搜索条件的查询包装器
+     */
+    QueryWrapper<MusicFile> getFuzzySearchQueryWrapper(MusicFileQueryRequest musicFileQueryRequest);
 }

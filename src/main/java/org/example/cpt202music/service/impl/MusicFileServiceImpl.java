@@ -450,6 +450,61 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         return queryWrapper;
     }
 
+    /**
+     * 获取用于模糊搜索的查询包装器
+     * 该方法允许在多个字段（标签、分类、歌名、艺术家等）中进行模糊搜索
+     *
+     * @param musicFileQueryRequest 查询请求对象，包含搜索文本
+     * @return 配置了模糊搜索条件的查询包装器
+     */
+    @Override
+    public QueryWrapper<MusicFile> getFuzzySearchQueryWrapper(MusicFileQueryRequest musicFileQueryRequest) {
+        QueryWrapper<MusicFile> queryWrapper = new QueryWrapper<>();
+        if (musicFileQueryRequest == null) {
+            return queryWrapper;
+        }
+
+        // 获取搜索关键词
+        String searchText = musicFileQueryRequest.getSearchText();
+        Integer reviewStatus = musicFileQueryRequest.getReviewStatus();
+
+        // 默认只显示已审核通过的音乐
+        queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "reviewStatus", reviewStatus);
+
+        // 如果搜索文本为空，直接返回
+        if (StrUtil.isBlank(searchText)) {
+            return queryWrapper;
+        }
+
+        // 构建多字段模糊搜索
+        queryWrapper.and(wrapper -> {
+            // 搜索歌曲名称
+            wrapper.like("name", searchText)
+                   // 搜索艺术家
+                   .or().like("artist", searchText)
+                   // 搜索专辑名
+                   .or().like("album", searchText)
+                   // 搜索简介
+                   .or().like("introduction", searchText)
+                   // 搜索分类
+                   .or().like("category", searchText)
+                   // 搜索标签 (标签以JSON格式存储)
+                   .or().like("tags", searchText);
+        });
+
+        // 应用分页排序条件
+        String sortField = musicFileQueryRequest.getSortField();
+        String sortOrder = musicFileQueryRequest.getSortOrder();
+        if (StrUtil.isNotEmpty(sortField)) {
+            queryWrapper.orderBy(true, sortOrder != null && sortOrder.equals("ascend"), sortField);
+        } else {
+            // 默认按创建时间降序
+            queryWrapper.orderByDesc("createTime");
+        }
+
+        return queryWrapper;
+    }
+
 }
 
 
