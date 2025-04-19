@@ -3,7 +3,7 @@ create database if not exists Music_Repo;
 use Music_Repo;
 
 -- 删除表
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS user, music_file;
 
 
 -- 用户表
@@ -25,8 +25,6 @@ create table if not exists user
     UNIQUE KEY uk_email (email),
     INDEX idx_userName (userName)
 ) comment '用户' collate = utf8mb4_unicode_ci;
-
-
 
 
 
@@ -74,3 +72,4 @@ CREATE INDEX idx_reviewStatus ON music_file (reviewStatus);
 
 ALTER TABLE `user` ADD COLUMN `user_status` INT DEFAULT 0 COMMENT '用户状态：0-正常，1-被封禁';
 ALTER TABLE `user` ADD COLUMN `banReason` varchar(258)  COMMENT '用户状态：0-正常，1-被封禁';
+

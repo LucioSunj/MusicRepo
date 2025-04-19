@@ -17,6 +17,7 @@ import org.example.cpt202music.model.vo.UserVO;
 import org.example.cpt202music.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -182,7 +183,11 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User user = new User();
+        // 盐值，混淆密码
+        final String SALT = "wyf_da_niu_niu";
+        String userPassword = userUpdateRequest.getUserPassword();
         BeanUtils.copyProperties(userUpdateRequest, user);
+        user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
