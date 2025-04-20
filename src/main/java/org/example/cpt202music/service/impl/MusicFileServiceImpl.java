@@ -192,6 +192,7 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         String sortField = MusicFileQueryRequest.getSortField();
         String sortOrder = MusicFileQueryRequest.getSortOrder();
 
+
         // 从多字段中搜索
         if (StrUtil.isNotBlank(searchText)) {
             // 需要拼接查询条件
@@ -206,21 +207,29 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         queryWrapper.like(StrUtil.isNotBlank(introduction), "introduction", introduction);
         queryWrapper.like(StrUtil.isNotBlank(fileFormat), "fileFormat", fileFormat);
         queryWrapper.like(StrUtil.isNotBlank(reviewMessage), "reviewMessage", reviewMessage);
-        queryWrapper.eq(StrUtil.isNotBlank(category), "category", category);
+
         queryWrapper.eq(ObjUtil.isNotEmpty(fileSize), "fileSize", fileSize);
         queryWrapper.eq(ObjUtil.isNotEmpty(duration), "duration", duration);
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "reviewStatus", reviewStatus);
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), "reviewerId", reviewerId);
 
-        // Json 数组查询
+
+        // 使用 OR 条件连接 category 和 tags
+        if (StrUtil.isNotBlank(category)) {
+            queryWrapper.eq("category", category);
+        }
+
         if (CollUtil.isNotEmpty(tags)) {
             for (String tag : tags) {
+                queryWrapper.or();
                 queryWrapper.like("tags", "\"" + tag + "\"");
             }
         }
 
+        // 排序
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
+
     }
 
 
