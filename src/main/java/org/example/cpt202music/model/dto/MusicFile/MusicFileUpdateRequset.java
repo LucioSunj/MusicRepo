@@ -21,6 +21,8 @@ public class MusicFileUpdateRequset implements Serializable {
      */
     private String name;
 
+    private String artist;
+
     /**
      * 介绍
      */

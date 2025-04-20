@@ -1,6 +1,7 @@
 package org.example.cpt202music.controller;
 
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -110,6 +111,10 @@ public class MusicFileController {
         // 补充审核参数
         User loginUser =userService.getLoginUser(request);
         musicFileService.fillReviewParams(musicFile, loginUser);
+
+        if (StrUtil.isNotBlank(musicFileUpdateRequset.getArtist())) {
+            musicFile.setArtist(musicFileUpdateRequset.getArtist());
+        }
         // 操作数据库
         boolean result = musicFileService.updateById(musicFile);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -192,6 +197,12 @@ public class MusicFileController {
         musicFile.setTags(JSONUtil.toJsonStr(musicFileEditRequest.getTags()));
         // 设置编辑时间
         musicFile.setEditTime(new Date());
+        
+        // 处理作者信息
+        if (StrUtil.isNotBlank(musicFileEditRequest.getArtist())) {
+            musicFile.setArtist(musicFileEditRequest.getArtist());
+        }
+        
         // 数据校验
         musicFileService.validMusicFile(musicFile);
         User loginUser = userService.getLoginUser(request);

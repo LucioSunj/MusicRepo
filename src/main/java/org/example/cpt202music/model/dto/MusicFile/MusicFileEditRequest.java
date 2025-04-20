@@ -22,6 +22,8 @@ public class MusicFileEditRequest implements Serializable {
      */
     private Long id;
 
+    private String artist;
+
     /**
      * 名字
      */
