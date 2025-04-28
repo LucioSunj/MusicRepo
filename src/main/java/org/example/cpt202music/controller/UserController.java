@@ -186,8 +186,12 @@ public class UserController {
         // 盐值，混淆密码
         final String SALT = "wyf_da_niu_niu";
         String userPassword = userUpdateRequest.getUserPassword();
+
         BeanUtils.copyProperties(userUpdateRequest, user);
-        user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
+        if (userPassword != null) {
+            user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
+        }
+//        user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
