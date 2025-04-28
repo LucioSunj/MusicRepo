@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
@@ -39,7 +40,7 @@ public class UserController {
      * 用户注册
      */
     @PostMapping("/register")
-    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public BaseResponse<UserVO> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         // 这里用到的是自己的工具类
         ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
         String userAccount = userRegisterRequest.getUserAccount();
@@ -49,8 +50,9 @@ public class UserController {
         String code = userRegisterRequest.getCode();
         
         // 不包含头像上传，传null
-        long result = userService.userRegister(userAccount, userPassword, checkPassword, email, code, null);
-        return ResultUtils.success(result);
+        long userId = userService.userRegister(userAccount, userPassword, checkPassword, email, code, null);
+        User user = userService.getById(userId);
+        return ResultUtils.success(userService.getUserVO(user));
     }
 
     /**
@@ -235,5 +237,78 @@ public class UserController {
         user.setBanReason(request.getBanReason());
         boolean result = userService.updateById(user);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 根据用户ID上传头像（不需要登录）
+     */
+    @PostMapping("/upload/avatar/by-id")
+    public BaseResponse<String> uploadAvatarById(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("userId") Long userId) {
+        
+        // 验证用户ID
+        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR, "用户ID无效: " + userId);
+        
+        // 获取用户信息
+        User user = userService.getById(userId);
+        System.out.println("请求上传头像的用户ID: " + userId + ", 查询结果: " + (user != null ? "用户存在" : "用户不存在"));
+        
+        // 如果用户不存在，尝试查询所有用户以进行调试
+        if (user == null) {
+            List<User> allUsers = userService.list();
+            System.out.println("当前系统中的所有用户ID: " + 
+                allUsers.stream().map(User::getId).collect(Collectors.toList()));
+        }
+        
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在，ID: " + userId);
+        
+        try {
+            // 上传头像
+            String avatarUrl = fileManager.uploadImage(file, "avatar/" + user.getUserAccount());
+            
+            // 更新用户头像
+            User updateUser = new User();
+            updateUser.setId(userId);
+            updateUser.setUserAvatar(avatarUrl);
+            boolean result = userService.updateById(updateUser);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新头像失败");
+            
+            return ResultUtils.success(avatarUrl);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "头像上传失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 根据用户账号上传头像（不需要登录）
+     */
+    @PostMapping("/upload/avatar/by-account")
+    public BaseResponse<String> uploadAvatarByAccount(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("userAccount") String userAccount) {
+        
+        // 验证账号
+        ThrowUtils.throwIf(userAccount == null || userAccount.isEmpty(), ErrorCode.PARAMS_ERROR);
+        
+        // 根据账号查找用户
+        User user = userService.lambdaQuery().eq(User::getUserAccount, userAccount).one();
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        
+        try {
+            // 上传头像
+            String avatarUrl = fileManager.uploadImage(file, "avatar/" + userAccount);
+            
+            // 更新用户头像
+            User updateUser = new User();
+            updateUser.setId(user.getId());
+            updateUser.setUserAvatar(avatarUrl);
+            boolean result = userService.updateById(updateUser);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新头像失败");
+            
+            return ResultUtils.success(avatarUrl);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "头像上传失败：" + e.getMessage());
+        }
     }
 }
