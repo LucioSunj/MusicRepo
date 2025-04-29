@@ -148,6 +148,8 @@ public class UserController {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         User user = userService.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
+        // 添加日志输出banNumber值
+        System.out.println("用户 " + id + " 的banNumber: " + user.getBanNumber());
         return ResultUtils.success(user);
     }
 
@@ -310,5 +312,33 @@ public class UserController {
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Failed to upload user's avatar" + e.getMessage());
         }
+    }
+
+    /**
+     * 增加用户的被封禁资源数量
+     */
+    @PostMapping("/increase/ban-number")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> increaseUserBanNumber(@RequestParam("userId") Long userId) {
+        // 验证参数
+        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR);
+        
+        // 查询用户是否存在
+        User user = userService.getById(userId);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        
+        // 创建更新对象
+        User updateUser = new User();
+        updateUser.setId(userId);
+        
+        // 将当前的banNumber值+1
+        Integer currentBanNumber = user.getBanNumber() != null ? user.getBanNumber() : 0;
+        updateUser.setBanNumber(currentBanNumber + 1);
+        
+        // 更新用户信息
+        boolean result = userService.updateById(updateUser);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新失败");
+        
+        return ResultUtils.success(true);
     }
 }

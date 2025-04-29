@@ -1,6 +1,6 @@
 -- Create database
-create database if not exists Music_Repo;
-use Music_Repo;
+create database if not exists music;
+use music;
 
 -- Drop tables
 DROP TABLE IF EXISTS user, music_file;
@@ -69,7 +69,7 @@ ALTER TABLE music_file
 -- Create index based on reviewStatus column
 CREATE INDEX idx_reviewStatus ON music_file (reviewStatus);
 
-
 ALTER TABLE `user` ADD COLUMN `user_status` INT DEFAULT 0 COMMENT 'User status: 0-Normal, 1-Banned';
 ALTER TABLE `user` ADD COLUMN `banReason` varchar(258)  COMMENT 'Ban reason';
+ALTER TABLE user ADD COLUMN banNumber INT DEFAULT 0 COMMENT 'banNumber';
 

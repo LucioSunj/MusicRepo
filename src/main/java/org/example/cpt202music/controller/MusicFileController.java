@@ -347,7 +347,7 @@ public class MusicFileController {
 
         // Create query request object
         MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
-        musicFileQueryRequest.setReviewStatus(-1);  // Rejected
+        musicFileQueryRequest.setReviewStatus(2);  // Rejected
 
         // Build query conditions
         QueryWrapper<MusicFile> queryWrapper = musicFileService.getQueryWrapper(musicFileQueryRequest);
