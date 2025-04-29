@@ -25,10 +25,10 @@ public class AuthInterceptor {
     @Resource
     private UserService userService;
 
-    // 大部分切面用around都可以解决
+    // Most aspects can be solved with Around advice
 
     /**
-     * 执行拦截
+     * Execute interception
      * @param joinPoint
      * @param authCheck
      * @return
@@ -38,23 +38,23 @@ public class AuthInterceptor {
         String mustRole = authCheck.mustRole();
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-        // 获取当前登录用户
-        User loginUser = userService.getLoginUser(request); // 基于我们在getLoginUser中写了如果未登录就报错，所以这里就拥有了校验用户登录的能力
+        // Get current logged-in user
+        User loginUser = userService.getLoginUser(request); // Based on our implementation in getLoginUser that throws an error if not logged in, this provides login verification capability
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
-        // 如果不需要权限，放行
+        // If no permission required, allow the request to proceed
         if (mustRoleEnum == null) {
             return joinPoint.proceed();
         }
-        // 以下的代码必须权限才会通过
+        // The code below requires proper permissions to pass
         UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUser.getUserRole());
         if (userRoleEnum == null) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        // 要求必须有管理员权限，但用户没有管理员权限，拒绝
+        // If admin permission is required but user doesn't have admin permission, deny access
         if (!userRoleEnum.ADMIN.equals(mustRoleEnum) && !userRoleEnum.ADMIN.equals(userRoleEnum)){
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        // 放行
+        // Allow the request to proceed
         return joinPoint.proceed();
     }
 }

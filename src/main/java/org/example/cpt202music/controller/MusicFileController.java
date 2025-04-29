@@ -51,7 +51,7 @@ public class MusicFileController {
 
 
     @PostMapping("/upload")
-    // @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)  现在开放给用户用了
+    // @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)  Now open for users
     public BaseResponse<MusicFileVO> uploadMusicFile(@RequestPart("file") MultipartFile multipartFile,
                                                 MusicFileUploadRequest MusicFileUploadRequest,
                                                      @RequestPart(value = "coverFile", required = false) MultipartFile coverFile,
@@ -63,7 +63,7 @@ public class MusicFileController {
 
 
     /**
-     * 删除图片
+     * Delete file
      */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteMusicFile(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
@@ -74,19 +74,19 @@ public class MusicFileController {
         Long id = deleteRequest.getId();
         MusicFile oldmusicFile = musicFileService.getById(id);
         ThrowUtils.throwIf(oldmusicFile == null, ErrorCode.NOT_FOUND_ERROR);
-        // 仅本人或者管理员可删除
+        // Only owner or admin can delete
         if (!oldmusicFile.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        // 操作数据库
+        // Database operation
         boolean result = musicFileService.removeById(id);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "文件删除失败，数据库操作失败");
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "File deletion failed, database operation failed");
         return ResultUtils.success(result);
     }
 
 
     /**
-     * 更新图片 仅管理员
+     * Update file - admin only
      * @param musicFileUpdateRequset
      * @param request
      * @return
@@ -97,66 +97,66 @@ public class MusicFileController {
         if (musicFileUpdateRequset == null || musicFileUpdateRequset.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 将实体类和 DTO 进行转换
+        // Convert entity and DTO
         MusicFile musicFile = new MusicFile();
         BeanUtils.copyProperties(musicFileUpdateRequset, musicFile);
-        // 注意将 list 转为 string
+        // Convert list to string
         musicFile.setTags(JSONUtil.toJsonStr(musicFileUpdateRequset.getTags()));
-        // 数据校验
+        // Data validation
         musicFileService.validMusicFile(musicFile);
-        // 判断是否存在
+        // Check if exists
         long id = musicFileUpdateRequset.getId();
         MusicFile oldPicture = musicFileService.getById(id);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
-        // 补充审核参数
+        // Add review parameters
         User loginUser =userService.getLoginUser(request);
         musicFileService.fillReviewParams(musicFile, loginUser);
 
         if (StrUtil.isNotBlank(musicFileUpdateRequset.getArtist())) {
             musicFile.setArtist(musicFileUpdateRequset.getArtist());
         }
-        // 操作数据库
+        // Database operation
         boolean result = musicFileService.updateById(musicFile);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
 
     /**
-     * 根据 id 获取图片（仅管理员可用）
+     * Get file by id (admin only)
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<MusicFile> getMusicFileById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
-        // 查询数据库
+        // Query database
         MusicFile picture = musicFileService.getById(id);
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
-        // 获取封装类
+        // Get wrapper class
         return ResultUtils.success(picture);
     }
 
     /**
-     * 根据 id 获取图片（封装类）
+     * Get file by id (wrapper class)
      */
     @GetMapping("/get/vo")
     public BaseResponse<MusicFileVO> getMusicFileVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
-        // 查询数据库
+        // Query database
         MusicFile musicFile = musicFileService.getById(id);
         ThrowUtils.throwIf(musicFile == null, ErrorCode.NOT_FOUND_ERROR);
-        // 获取封装类
+        // Get wrapper class
         return ResultUtils.success(musicFileService.getMusicFileVO(musicFile, request));
     }
 
     /**
-     * 分页获取图片列表（仅管理员可用）
+     * Get paginated file list (admin only)
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<MusicFile>> listMusicFileByPage(@RequestBody MusicFileQueryRequest musicFileQueryRequest) {
         long current = musicFileQueryRequest.getCurrent();
         long size = musicFileQueryRequest.getPageSize();
-        // 查询数据库
+        // Query database
         Page<MusicFile> musicFilePage = musicFileService.page(new Page<>(current, size),
                 musicFileService.getQueryWrapper(musicFileQueryRequest));
         return ResultUtils.success(musicFilePage);
@@ -164,59 +164,59 @@ public class MusicFileController {
 
 
     /**
-     * 分页获取音乐列表（封装类）
+     * Get paginated music list (wrapper class)
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<MusicFileVO>> listMusicFileVOByPage(@RequestBody MusicFileQueryRequest musicFileQueryRequest,
                                                              HttpServletRequest request) {
         long current = musicFileQueryRequest.getCurrent();
         long size = musicFileQueryRequest.getPageSize();
-        // 限制爬虫
+        // Limit crawler
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        // 普通用户默认只能看到审核通过的数据
+        // Regular users can only see approved data by default
 //        musicFileQueryRequest.setReviewStatus(MusicFileReviewStatusEnum.PASS.getValue());
-        // 查询数据库
+        // Query database
         Page<MusicFile> MusicFilePage = musicFileService.page(new Page<>(current, size),
                 musicFileService.getApprovedMusicQueryWrapper());
-        // 获取封装类
+        // Get wrapper class
         return ResultUtils.success(musicFileService.getMusicFileVOPage(MusicFilePage, request));
     }
 
     /**
-     * 编辑图片（给用户使用）
+     * Edit file (for users)
      */
     @PostMapping("/edit")
     public BaseResponse<Boolean> editMusicFile(@RequestBody MusicFileEditRequest musicFileEditRequest, HttpServletRequest request) {
         if (musicFileEditRequest == null || musicFileEditRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 在此处将实体类和 DTO 进行转换
+        // Convert entity and DTO
         MusicFile musicFile = new MusicFile();
         BeanUtils.copyProperties(musicFileEditRequest, musicFile);
-        // 注意将 list 转为 string
+        // Convert list to string
         musicFile.setTags(JSONUtil.toJsonStr(musicFileEditRequest.getTags()));
-        // 设置编辑时间
+        // Set edit time
         musicFile.setEditTime(new Date());
         
-        // 处理作者信息
+        // Process artist information
         if (StrUtil.isNotBlank(musicFileEditRequest.getArtist())) {
             musicFile.setArtist(musicFileEditRequest.getArtist());
         }
         
-        // 数据校验
+        // Data validation
         musicFileService.validMusicFile(musicFile);
         User loginUser = userService.getLoginUser(request);
-        // 补充审核参数
+        // Add review parameters
         musicFileService.fillReviewParams(musicFile, loginUser);
-        // 判断是否存在
+        // Check if exists
         long id = musicFileEditRequest.getId();
         MusicFile oldMusicfile = musicFileService.getById(id);
         ThrowUtils.throwIf(oldMusicfile == null, ErrorCode.NOT_FOUND_ERROR);
-        // 仅本人或管理员可编辑
+        // Only owner or admin can edit
         if (!oldMusicfile.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        // 操作数据库
+        // Database operation
         boolean result = musicFileService.updateById(musicFile);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
@@ -234,10 +234,10 @@ public class MusicFileController {
     }
 
     /**
-     * 音频流式播放
+     * Audio streaming playback
      *
-     * @param id 音乐文件ID
-     * @param response HTTP响应对象
+     * @param id Music file ID
+     * @param response HTTP response object
      */
     @GetMapping("/stream/{id}")
     public void streamAudio(@PathVariable("id") Long id, HttpServletResponse response) {
@@ -245,10 +245,10 @@ public class MusicFileController {
     }
 
     /**
-     * 获取指定分类的播放列表
+     * Get playlist for a specific category
      *
-     * @param category 音乐分类
-     * @return 音乐列表
+     * @param category Music category
+     * @return Music list
      */
     @GetMapping("/playlist/{category}")
     public BaseResponse<List<MusicFileVO>> getPlaylistByCategory(@PathVariable("category") String category, HttpServletRequest request) {
@@ -257,17 +257,17 @@ public class MusicFileController {
     }
 
     /**
-     * 获取所有音乐分类下的播放列表
+     * Get playlists for all music categories
      *
-     * @return 分类及对应的音乐列表
+     * @return Categories and corresponding music lists
      */
     @GetMapping("/playlists")
     public BaseResponse<MusicFilePlaylistsVO> getAllPlaylists(HttpServletRequest request) {
-        // 获取所有分类
+        // Get all categories
         BaseResponse<MusicFileTagCategory> tagCategoryResponse = listMusicFileTagCategory();
         List<String> categories = tagCategoryResponse.getData().getCategoryList();
 
-        // 为每个分类获取音乐列表
+        // Get music list for each category
         Map<String, List<MusicFileVO>> playlists = new HashMap<>();
         for (String category : categories) {
             List<MusicFileVO> playlist = musicFileService.getPlaylistByCategory(category, request);
@@ -291,7 +291,7 @@ public class MusicFileController {
 
 
     /**
-     * 获取待审核的音乐文件列表（管理员）
+     * Get pending music file list (admin)
      */
     @GetMapping("/admin/list/pending")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -299,14 +299,14 @@ public class MusicFileController {
             @RequestParam(defaultValue = "1") long current,
             @RequestParam(defaultValue = "10") long pageSize) {
 
-        // 创建查询请求对象
+        // Create query request object
         MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
-        musicFileQueryRequest.setReviewStatus(0);  // 待审核
+        musicFileQueryRequest.setReviewStatus(0);  // Pending review
 
-        // 构建查询条件
+        // Build query conditions
         QueryWrapper<MusicFile> queryWrapper = musicFileService.getQueryWrapper(musicFileQueryRequest);
 
-        // 执行分页查询
+        // Execute paginated query
         Page<MusicFile> musicFilePage = musicFileService.page(
                 new Page<>(current, pageSize), queryWrapper);
 
@@ -314,7 +314,7 @@ public class MusicFileController {
     }
 
     /**
-     * 获取审核通过的音乐文件列表（管理员）
+     * Get approved music file list (admin)
      */
     @GetMapping("/admin/list/approved")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -322,14 +322,14 @@ public class MusicFileController {
             @RequestParam(defaultValue = "1") long current,
             @RequestParam(defaultValue = "10") long pageSize) {
 
-        // 创建查询请求对象
+        // Create query request object
         MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
-        musicFileQueryRequest.setReviewStatus(1);  // 已通过
+        musicFileQueryRequest.setReviewStatus(1);  // Approved
 
-        // 构建查询条件
+        // Build query conditions
         QueryWrapper<MusicFile> queryWrapper = musicFileService.getQueryWrapper(musicFileQueryRequest);
 
-        // 执行分页查询
+        // Execute paginated query
         Page<MusicFile> musicFilePage = musicFileService.page(
                 new Page<>(current, pageSize), queryWrapper);
 
@@ -337,7 +337,7 @@ public class MusicFileController {
     }
 
     /**
-     * 获取审核未通过的音乐文件列表（管理员）
+     * Get rejected music file list (admin)
      */
     @GetMapping("/admin/list/rejected")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -345,14 +345,14 @@ public class MusicFileController {
             @RequestParam(defaultValue = "1") long current,
             @RequestParam(defaultValue = "10") long pageSize) {
 
-        // 创建查询请求对象
+        // Create query request object
         MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
-        musicFileQueryRequest.setReviewStatus(-1);  // 未通过
+        musicFileQueryRequest.setReviewStatus(-1);  // Rejected
 
-        // 构建查询条件
+        // Build query conditions
         QueryWrapper<MusicFile> queryWrapper = musicFileService.getQueryWrapper(musicFileQueryRequest);
 
-        // 执行分页查询
+        // Execute paginated query
         Page<MusicFile> musicFilePage = musicFileService.page(
                 new Page<>(current, pageSize), queryWrapper);
 
@@ -360,13 +360,13 @@ public class MusicFileController {
     }
 
     /**
-     * 分页获取指定分类的音乐列表（封装类）
+     * Get paginated music list by category (wrapper class)
      *
-     * @param category 音乐分类
-     * @param current  当前页码
-     * @param pageSize 页面大小
-     * @param request  HTTP请求对象
-     * @return 分页的音乐列表
+     * @param category Music category
+     * @param current  Current page
+     * @param pageSize Page size
+     * @param request  HTTP request object
+     * @return Paginated music list
      */
     @GetMapping("/list/page/category/{category}")
     public BaseResponse<Page<MusicFileVO>> listMusicFileVOByCategoryPage(
@@ -375,10 +375,10 @@ public class MusicFileController {
             @RequestParam(defaultValue = "10") long pageSize,
             HttpServletRequest request) {
 
-        // 限制爬虫
+        // Limit crawler
         ThrowUtils.throwIf(pageSize > 20, ErrorCode.PARAMS_ERROR);
 
-        // 构建查询条件
+        // Build query conditions
         MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
         musicFileQueryRequest.setCurrent((int) current);
         musicFileQueryRequest.setPageSize((int) pageSize);
@@ -387,25 +387,25 @@ public class MusicFileController {
         tags.add(category);
         musicFileQueryRequest.setTags(tags);
 
-        // 普通用户默认只能看到审核通过的数据
+        // Regular users can only see approved data by default
         musicFileQueryRequest.setReviewStatus(MusicFileReviewStatusEnum.PASS.getValue());
 
-        // 查询数据库
+        // Query database
         Page<MusicFile> musicFilePage = musicFileService.page(new Page<>(current, pageSize),
                 musicFileService.getQueryWrapper(musicFileQueryRequest));
 
-        // 获取封装类
+        // Get wrapper class
         return ResultUtils.success(musicFileService.getMusicFileVOPage(musicFilePage, request));
     }
     
     /**
-     * 模糊搜索音乐文件（可搜索标签、分类、歌名、艺术家等）
+     * Fuzzy search music files (search by tags, categories, song name, artist, etc.)
      *
-     * @param searchText 搜索关键词
-     * @param current 当前页码
-     * @param pageSize 页面大小
-     * @param request HTTP请求对象
-     * @return 符合条件的音乐文件列表
+     * @param searchText Search keyword
+     * @param current Current page
+     * @param pageSize Page size
+     * @param request HTTP request object
+     * @return List of matching music files
      */
     @GetMapping("/search")
     public BaseResponse<Page<MusicFileVO>> searchMusicFiles(
@@ -414,23 +414,23 @@ public class MusicFileController {
             @RequestParam(defaultValue = "10") long pageSize,
             HttpServletRequest request) {
         
-        // 限制爬虫
+        // Limit crawler
         ThrowUtils.throwIf(pageSize > 20, ErrorCode.PARAMS_ERROR);
         
-        // 构建查询条件
+        // Build query conditions
         MusicFileQueryRequest musicFileQueryRequest = new MusicFileQueryRequest();
         musicFileQueryRequest.setCurrent((int) current);
         musicFileQueryRequest.setPageSize((int) pageSize);
         musicFileQueryRequest.setSearchText(searchText);
         
-        // 普通用户默认只能看到审核通过的数据
+        // Regular users can only see approved data by default
         musicFileQueryRequest.setReviewStatus(MusicFileReviewStatusEnum.PASS.getValue());
         
-        // 查询数据库
+        // Query database
         Page<MusicFile> musicFilePage = musicFileService.page(new Page<>(current, pageSize),
                 musicFileService.getFuzzySearchQueryWrapper(musicFileQueryRequest));
         
-        // 获取封装类
+        // Get wrapper class
         return ResultUtils.success(musicFileService.getMusicFileVOPage(musicFilePage, request));
     }
 }

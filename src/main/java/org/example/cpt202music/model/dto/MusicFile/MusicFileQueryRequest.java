@@ -19,80 +19,80 @@ public class MusicFileQueryRequest  extends PageRequest implements Serializable 
     private Long id;
 
     /**
-     * 名字
+     * name
      */
     private String name;
 
     /**
-     * 介绍
+     * intro
      */
     private String introduction;
 
     /**
-     * 分类
+     * category
      */
     private String category;
 
     /**
-     * 标签
+     * tag
      */
     private List<String> tags;
 
     /**
-     * 文件大小
+     * filesize
      */
     private Long fileSize;
 
     /**
-     * 时长（秒）
+     * duration
      */
     private Integer duration;
 
     /**
-     * 文件格式
+     * fileFormat
      */
     private String fileFormat;
 
     /**
-     * 封面图片 id
+     * cover id
      */
     private Long coverId;
 
 
     /**
-     * 创建用户 id
+     * userId
      */
     private Long userId;
 
     /**
-     * 比特率
+     * bitrate
      */
     private Integer bitRate;
 
     /**
-     * 搜索文本(同时搜索名称，简介等)
+     * Search for text (while searching for name, description, etc.)
      */
     private String searchText;
 
 
 
     /**
-     * 状态：0-待审核; 1-通过; 2-拒绝
+     * Status: 0-Pending review; 1-Passed; 2-Rejected
      */
     private Integer reviewStatus;
 
     /**
-     * 审核信息
+     * Audit information
      */
     private String reviewMessage;
 
     /**
-     * 审核人 id
+     * reviewer id
      */
     private Long reviewerId;
 
     /**
-     * 审核时间
+     * reviewTime
      */
     private Date reviewTime;
 

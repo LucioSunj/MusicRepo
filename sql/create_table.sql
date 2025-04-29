@@ -1,75 +1,75 @@
--- 创建库
+-- Create database
 create database if not exists Music_Repo;
 use Music_Repo;
 
--- 删除表
+-- Drop tables
 DROP TABLE IF EXISTS user, music_file;
 
 
--- 用户表
+-- User table
 create table if not exists user
 (
     id           bigint auto_increment comment 'id' primary key,
-    userAccount  varchar(256)                           not null comment '账号',
-    userPassword varchar(512)                           not null comment '密码',
-    email        varchar(256)                           null comment '邮箱',
-    userName     varchar(256)                           null comment '用户昵称',
-    userAvatar   varchar(1024)                          null comment '用户头像',
-    userProfile  varchar(512)                           null comment '用户简介',
-    userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin',
-    editTime     datetime     default CURRENT_TIMESTAMP not null comment '编辑时间',
-    createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint      default 0                 not null comment '是否删除',
+    userAccount  varchar(256)                           not null comment 'Account',
+    userPassword varchar(512)                           not null comment 'Password',
+    email        varchar(256)                           null comment 'Email',
+    userName     varchar(256)                           null comment 'Username',
+    userAvatar   varchar(1024)                          null comment 'Avatar',
+    userProfile  varchar(512)                           null comment 'Profile',
+    userRole     varchar(256) default 'user'            not null comment 'Role: user/admin',
+    editTime     datetime     default CURRENT_TIMESTAMP not null comment 'Edit time',
+    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create time',
+    updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'Update time',
+    isDelete     tinyint      default 0                 not null comment 'Is deleted',
     UNIQUE KEY uk_userAccount (userAccount),
     UNIQUE KEY uk_email (email),
     INDEX idx_userName (userName)
-) comment '用户' collate = utf8mb4_unicode_ci;
+) comment 'User' collate = utf8mb4_unicode_ci;
 
 
 
--- 音乐文件表
+-- Music file table
 create table if not exists music_file
 (
     id              bigint auto_increment comment 'id' primary key,
-    url             varchar(512)                       not null comment '音乐文件 url',
-    name            varchar(128)                       not null comment '音乐名称',
-    artist          varchar(128)                       null comment '艺术家',
-    album           varchar(128)                       null comment '专辑',
-    introduction    varchar(512)                       null comment '简介',
-    category        varchar(64)                        null comment '分类',
-    tags            varchar(512)                       null comment '标签（JSON 数组）',
-    fileSize        bigint                             null comment '文件大小',
-    duration        int                                null comment '时长（秒）',
-    bitRate         int                                null comment '比特率',
-    fileFormat      varchar(32)                        null comment '文件格式',
-    coverUrl        varchar(512)                             null comment '封面图片',
-    userId          bigint                             not null comment '创建用户 id',
-    createTime      datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    editTime        datetime default CURRENT_TIMESTAMP not null comment '编辑时间',
-    updateTime      datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete        tinyint  default 0                 not null comment '是否删除',
-    INDEX idx_name (name),                 -- 提升基于音乐名称的查询性能
-    INDEX idx_artist (artist),             -- 提升基于艺术家的查询性能
-    INDEX idx_album (album),               -- 提升基于专辑的查询性能
-    INDEX idx_introduction (introduction), -- 用于模糊搜索音乐简介
-    INDEX idx_category (category),         -- 提升基于分类的查询性能
-    INDEX idx_tags (tags),                 -- 提升基于标签的查询性能
-    INDEX idx_coverId (coverUrl),           -- 提升基于封面ID的查询性能
-    INDEX idx_userId (userId)            -- 提升基于用户 ID 的查询性能
-) comment '音乐文件' collate = utf8mb4_unicode_ci;
+    url             varchar(512)                       not null comment 'Music file url',
+    name            varchar(128)                       not null comment 'Music name',
+    artist          varchar(128)                       null comment 'Artist',
+    album           varchar(128)                       null comment 'Album',
+    introduction    varchar(512)                       null comment 'Introduction',
+    category        varchar(64)                        null comment 'Category',
+    tags            varchar(512)                       null comment 'Tags (JSON array)',
+    fileSize        bigint                             null comment 'File size',
+    duration        int                                null comment 'Duration (seconds)',
+    bitRate         int                                null comment 'Bit rate',
+    fileFormat      varchar(32)                        null comment 'File format',
+    coverUrl        varchar(512)                             null comment 'Cover image',
+    userId          bigint                             not null comment 'Creator user id',
+    createTime      datetime default CURRENT_TIMESTAMP not null comment 'Create time',
+    editTime        datetime default CURRENT_TIMESTAMP not null comment 'Edit time',
+    updateTime      datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'Update time',
+    isDelete        tinyint  default 0                 not null comment 'Is deleted',
+    INDEX idx_name (name),                 -- Improve query performance based on music name
+    INDEX idx_artist (artist),             -- Improve query performance based on artist
+    INDEX idx_album (album),               -- Improve query performance based on album
+    INDEX idx_introduction (introduction), -- For fuzzy search of music introduction
+    INDEX idx_category (category),         -- Improve query performance based on category
+    INDEX idx_tags (tags),                 -- Improve query performance based on tags
+    INDEX idx_coverId (coverUrl),           -- Improve query performance based on cover ID
+    INDEX idx_userId (userId)            -- Improve query performance based on user ID
+) comment 'Music file' collate = utf8mb4_unicode_ci;
 
 ALTER TABLE music_file
-    -- 添加新列
-    ADD COLUMN reviewStatus INT DEFAULT 0 NOT NULL COMMENT '审核状态：0-待审核; 1-通过; 2-拒绝',
-    ADD COLUMN reviewMessage VARCHAR(512) NULL COMMENT '审核信息',
-    ADD COLUMN reviewerId BIGINT NULL COMMENT '审核人 ID',
-    ADD COLUMN reviewTime DATETIME NULL COMMENT '审核时间';
+    -- Add new columns
+    ADD COLUMN reviewStatus INT DEFAULT 0 NOT NULL COMMENT 'Review status: 0-Pending; 1-Approved; 2-Rejected',
+    ADD COLUMN reviewMessage VARCHAR(512) NULL COMMENT 'Review message',
+    ADD COLUMN reviewerId BIGINT NULL COMMENT 'Reviewer ID',
+    ADD COLUMN reviewTime DATETIME NULL COMMENT 'Review time';
 
--- 创建基于 reviewStatus 列的索引
+-- Create index based on reviewStatus column
 CREATE INDEX idx_reviewStatus ON music_file (reviewStatus);
 
 
-ALTER TABLE `user` ADD COLUMN `user_status` INT DEFAULT 0 COMMENT '用户状态：0-正常，1-被封禁';
-ALTER TABLE `user` ADD COLUMN `banReason` varchar(258)  COMMENT '用户状态：0-正常，1-被封禁';
+ALTER TABLE `user` ADD COLUMN `user_status` INT DEFAULT 0 COMMENT 'User status: 0-Normal, 1-Banned';
+ALTER TABLE `user` ADD COLUMN `banReason` varchar(258)  COMMENT 'Ban reason';
 

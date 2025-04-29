@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 更新请求
+ * Update Request
  */
 @Data
 public class MusicFileUpdateRequset implements Serializable {
@@ -17,24 +17,24 @@ public class MusicFileUpdateRequset implements Serializable {
     private Long id;
 
     /**
-     * 名字
+     * name
      */
     private String name;
 
     private String artist;
 
     /**
-     * 介绍
+     * introduction
      */
     private String introduction;
 
     /**
-     * 分类
+     * category
      */
     private String category;
 
     /**
-     * 标签
+     * tags
      */
     private List<String> tags;
 

@@ -10,52 +10,52 @@ import java.util.Date;
 
 
 /**
- * 创建文件结果
+ * File creation result
  */
 @Data
 public class UploadMusicFileResult {
     /**
-     * 音乐文件 url
+     * Music file url
      */
     private String url;
 
     /**
-     * 音乐名称
+     * Music name
      */
     private String name;
 
     /**
-     * 艺术家
+     * Artist
      */
     private String artist;
 
     /**
-     * 专辑
+     * Album
      */
     private String album;
 
     /**
-     * 简介
+     * Introduction
      */
     private String introduction;
 
     /**
-     * 文件大小
+     * File size
      */
     private Long fileSize;
 
     /**
-     * 时长（秒）
+     * Duration (seconds)
      */
     private Integer duration;
 
     /**
-     * 比特率
+     * Bit rate
      */
     private Integer bitRate;
 
     /**
-     * 文件格式
+     * File format
      */
     private String fileFormat;
 

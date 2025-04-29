@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
 * @author XLW200420
-* @description 针对表【music_file(音乐文件)】的数据库操作Service
+* @description Database operation Service for table【music_file】
 * @createDate 2025-04-12 18:57:42
 */
 public interface MusicFileService extends IService<MusicFile> {
@@ -25,7 +25,7 @@ public interface MusicFileService extends IService<MusicFile> {
 
 
     /**
-     * 上传图片
+     * Upload music file
      *
      * @param multipartFile
      * @param musicFileUploadRequest
@@ -35,7 +35,7 @@ public interface MusicFileService extends IService<MusicFile> {
     MusicFileVO uploadMusicFile(MultipartFile multipartFile, MusicFileUploadRequest musicFileUploadRequest, User loginUser, MultipartFile coverFile);
 
     /**
-     * 获取查询对象
+     * Get query wrapper
      *
      * @param MusicFileQueryRequest
      * @return
@@ -43,7 +43,7 @@ public interface MusicFileService extends IService<MusicFile> {
     QueryWrapper<MusicFile> getQueryWrapper(MusicFileQueryRequest MusicFileQueryRequest);
 
     /**
-     * 获取查询对象(单个)
+     * Get single query object
      * @param musicFile
      * @param request
      * @return
@@ -52,37 +52,37 @@ public interface MusicFileService extends IService<MusicFile> {
 
 
     /**
-     * 分页获取图片封装
+     * Get paginated music file wrappers
      */
     Page<MusicFileVO> getMusicFileVOPage(Page<MusicFile> musicFilePage, HttpServletRequest request);
 
     /**
-     * 校验图片信息
+     * Validate music file information
      * @param musicFile
      */
     void validMusicFile(MusicFile musicFile);
 
 
     /**
-     * 获取音乐文件流
+     * Stream music file
      *
-     * @param id 音乐文件ID
-     * @param response HTTP响应
+     * @param id Music file ID
+     * @param response HTTP response
      */
     void streamMusicFile(Long id, HttpServletResponse response);
 
     /**
-     * 获取指定分类的播放列表
+     * Get playlist by category
      *
-     * @param category 分类
-     * @param request HTTP请求
-     * @return 音乐列表
+     * @param category Category
+     * @param request HTTP request
+     * @return Music list
      */
     List<MusicFileVO> getPlaylistByCategory(String category, HttpServletRequest request);
 
 
     /**
-     * 图片审核
+     * Review music file
      *
      * @param musicFileReviewRequest
      * @param loginUser
@@ -91,25 +91,25 @@ public interface MusicFileService extends IService<MusicFile> {
 
 
     /**
-     * 填充审核参数
+     * Fill review parameters
      * @param musicFile
      * @param loginUser
      */
     void fillReviewParams(MusicFile musicFile, User loginUser);
 
     /**
-     * 获取已审核的音乐文件查询包装器
+     * Get query wrapper for approved music files
      *
-     * @return 已审核的音乐文件查询包装器
+     * @return Query wrapper for approved music files
      */
     QueryWrapper<MusicFile> getApprovedMusicQueryWrapper();
 
     /**
-     * 获取用于模糊搜索的查询包装器
-     * 该方法用于在多个字段（标签、分类、歌名、艺术家等）中进行模糊搜索
+     * Get query wrapper for fuzzy search
+     * This method is used for fuzzy searching across multiple fields (tags, categories, song names, artists, etc.)
      *
-     * @param musicFileQueryRequest 查询请求对象，包含搜索文本
-     * @return 配置了模糊搜索条件的查询包装器
+     * @param musicFileQueryRequest Query request object containing search text
+     * @return Query wrapper configured with fuzzy search conditions
      */
     QueryWrapper<MusicFile> getFuzzySearchQueryWrapper(MusicFileQueryRequest musicFileQueryRequest);
 }

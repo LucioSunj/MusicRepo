@@ -15,13 +15,13 @@ public class MusicFileReviewRequest implements Serializable {
     private long id;
 
     /**
-     * 状态： 0-待审核，1-审核通过，2-审核不通过
+     * Status: 0-Pending review, 1-Approved, 2-Rejected
      */
     private Integer reviewStatus;
 
 
     /**
-     * 审核信息
+     * Review message
      */
     private String reviewMessage;
 }

@@ -5,42 +5,42 @@ import org.example.cpt202music.exception.ErrorCode;
 public class ResultUtils {
 
     /**
-     * 成功
+     * Success
      *
-     * @param data 数据
-     * @param <T>  数据类型
-     * @return 响应
+     * @param data Data
+     * @param <T>  Data type
+     * @return Response
      */
     public static <T> BaseResponse<T> success(T data) {
         return new BaseResponse<>(0, data, "ok");
     }
 
     /**
-     * 失败
+     * Failure
      *
-     * @param errorCode 错误码
-     * @return 响应
+     * @param errorCode Error code
+     * @return Response
      */
     public static BaseResponse<?> error(ErrorCode errorCode) {
         return new BaseResponse<>(errorCode);
     }
 
     /**
-     * 失败
+     * Failure
      *
-     * @param code    错误码
-     * @param message 错误信息
-     * @return 响应
+     * @param code    Error code
+     * @param message Error message
+     * @return Response
      */
     public static BaseResponse<?> error(int code, String message) {
         return new BaseResponse<>(code, null, message);
     }
 
     /**
-     * 失败
+     * Failure
      *
-     * @param errorCode 错误码
-     * @return 响应
+     * @param errorCode Error code
+     * @return Response
      */
     public static BaseResponse<?> error(ErrorCode errorCode, String message) {
         return new BaseResponse<>(errorCode.getCode(), null, message);

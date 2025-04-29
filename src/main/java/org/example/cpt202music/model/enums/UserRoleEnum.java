@@ -4,9 +4,7 @@ package org.example.cpt202music.model.enums;
 import cn.hutool.core.util.ObjUtil;
 import lombok.Getter;
 
-/**
- *  用户角色枚举
- */
+
 @Getter
 public enum UserRoleEnum {
     USER("用户", "user"),
@@ -25,7 +23,7 @@ public enum UserRoleEnum {
 
 
     /**
-     * 根据值获取枚举
+     * 
      * @param value
      * @return
      */

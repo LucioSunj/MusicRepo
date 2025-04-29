@@ -33,7 +33,7 @@ import static org.example.cpt202music.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
 * @author XLW200420
-* @description 针对表【user(用户)】的数据库操作Service实现
+* @description Service implementation for database operations on table【user】
 * @createDate 2025-03-27 20:29:34
 */
 @Service
@@ -49,62 +49,62 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     /**
      *
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 校验密码
+     * @param userAccount   User account
+     * @param userPassword  User password
+     * @param checkPassword Confirmation password
      * @return
      */
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword, String email, String code, MultipartFile avatarFile) {
-        // 1. 校验
+        // 1. Validation
         if (StrUtil.hasBlank(userAccount, userPassword, checkPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Parameters cannot be empty");
         }
         if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "User account is too short");
         }
         if (userPassword.length() < 8 || checkPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "User password is too short");
         }
         if (!userPassword.equals(checkPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Passwords don't match");
         }
-        // 2. 检查是否重复
+        // 2. Check for duplicate accounts
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         long count = this.baseMapper.selectCount(queryWrapper);
         if (count > 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Account already exists");
         }
-        // 3. 加密
+        // 3. Encryption
         String encryptPassword = getEncryptPassword(userPassword);
-        // 4. 插入数据
+        // 4. Insert data
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptPassword);
         Boolean verified = emailService.checkVerificationCode(email, code);
         if (!verified) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Verification code error");
         }
         user.setEmail(email);
-        user.setUserName("无名");
+        user.setUserName("Anonymous");
         user.setUserRole(UserRoleEnum.USER.getValue());
         
-        // 5. 处理头像上传
+        // 5. Handle avatar upload
         if (avatarFile != null && !avatarFile.isEmpty()) {
             try {
                 String avatarUrl = fileManager.uploadImage(avatarFile, "avatar/" + userAccount);
                 user.setUserAvatar(avatarUrl);
             } catch (Exception e) {
-                log.error("头像上传失败", e);
-                // 头像上传失败不影响注册流程，可以后续再设置头像
+                log.error("Avatar upload failed", e);
+                // Avatar upload failure does not affect the registration process, avatar can be set later
             }
         }
         
-        // 这里的save 是mybatis plus框架做的事情，他在save的同时帮助你把id赋值创建，所以这里可以getid
+        // Here save is done by the mybatis plus framework, which creates and assigns the id at the same time, so we can getid here
         boolean saveResult = this.save(user);
         if (!saveResult) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Registration failed, database error");
         }
         return user.getId();
     }
@@ -113,48 +113,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
-        // 1. 校验
+        // 1. Validation
         if (StrUtil.hasBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Parameters cannot be empty");
         }
         if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Account error");
         }
         if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Password error");
         }
-        // 2. 加密
+        // 2. Encryption
         String encryptPassword = getEncryptPassword(userPassword);
-        // 查询用户是否存在
+        // Check if user exists
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         queryWrapper.eq("userPassword", encryptPassword);
         User user = this.baseMapper.selectOne(queryWrapper);
-        // 用户不存在
+        // User does not exist
         if (user == null) {
             log.info("user login failed, userAccount cannot match userPassword");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "User does not exist or password is incorrect");
         }
 
-        // 检查用户是否被封禁
+        // Check if user is banned
         if (user.getUser_status() != null && user.getUser_status() == 1) {
-            String reason = user.getBanReason() != null ? user.getBanReason() : "未说明原因";
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "账号已被封禁，原因：" + reason);
+            String reason = user.getBanReason() != null ? user.getBanReason() : "No reason provided";
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "Account has been banned, reason: " + reason);
         }
-        // 3. 记录用户的登录态
+        // 3. Record user login state
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
     }
 
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        // 判断是否登录
+        // Check if logged in
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User currentUser = (User) userObj;
         if (currentUser == null || currentUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-        // 从数据库查询一遍 （追求性能用缓存）
+        // Query from database (use cache for better performance)
         Long userId = currentUser.getId();
         currentUser = this.getById(userId);
         if (currentUser == null) {
@@ -165,7 +165,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     /**
-     * 获取脱敏类的用户信息
+     * Get desensitized user information
      * @param user
      * @return
      */
@@ -181,7 +181,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     /**
-     * 获取脱敏后的用户信息
+     * Get desensitized user information
      *
      * @param user
      * @return
@@ -198,7 +198,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     /**
-     * 获取脱敏后的用户列表
+     * Get list of desensitized users
      * @param userList
      * @return
      */
@@ -213,12 +213,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        // 判断是否登录
+        // Check if logged in
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         if (userObj == null) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "Not logged in");
         }
-        // 移除登录态
+        // Remove login state
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return true;
     }
@@ -226,7 +226,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Request parameters are empty");
         }
         Long id = userQueryRequest.getId();
         String userAccount = userQueryRequest.getUserAccount();
@@ -240,7 +240,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         queryWrapper.eq(ObjUtil.isNotNull(id), "id", id);
         queryWrapper.eq(StrUtil.isNotBlank(userRole), "userRole", userRole);
-        // 使用like，模糊查询
+        // Use like for fuzzy search
         queryWrapper.like(StrUtil.isNotBlank(userAccount), "userAccount", userAccount);
         queryWrapper.like(StrUtil.isNotBlank(userName), "userName", userName);
         queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
@@ -256,13 +256,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     /**
-     * 获取加密后的密码
+     * Get encrypted password
      * @param userPassword
      * @return
      */
     @Override
     public String getEncryptPassword(String userPassword) {
-        // 盐值，混淆密码
+        // Salt value for password obfuscation
         final String SALT = "wyf_da_niu_niu";
         return DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
     }

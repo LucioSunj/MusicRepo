@@ -13,38 +13,38 @@ import java.util.List;
 
 /**
 * @author XLW200420
-* @description 针对表【user(用户)】的数据库操作Service
+* @description Database operation Service for table【user】
 * @createDate 2025-03-27 20:29:34
 */
 public interface UserService extends IService<User> {
     /**
-     * 用户注册
+     * User registration
      *
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 校验密码
-     * @return 新用户 id
+     * @param userAccount   User account
+     * @param userPassword  User password
+     * @param checkPassword Confirmation password
+     * @return New user id
      */
     long userRegister(String userAccount, String userPassword, String checkPassword, String email, String code, MultipartFile avatarFile);
     String getEncryptPassword(String userPassword);
 
     /**
-     * 用户登录
+     * User login
      *
-     * @param userAccount  用户账户
-     * @param userPassword 用户密码
+     * @param userAccount  User account
+     * @param userPassword User password
      * @param request
-     * @return 脱敏后的用户信息，很多数据不用返回给前端
+     * @return Desensitized user information, many data fields are not returned to the frontend
      */
     LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
 
-    // 获取当前用户，返回给后端的部分
+    // Get current user, returned to the backend
     User getLoginUser(HttpServletRequest request);
 
 
     /**
-     * 获取脱敏后的用户登录信息
+     * Get desensitized user login information
      * @param user
      * @return
      */
@@ -52,7 +52,7 @@ public interface UserService extends IService<User> {
 
 
     /**
-     * 获取脱敏后的用户信息
+     * Get desensitized user information
      *
      * @param user
      * @return
@@ -62,7 +62,7 @@ public interface UserService extends IService<User> {
 
 
     /**
-     * 获取脱敏后的用户信息列表
+     * Get list of desensitized user information
      *
      * @param userList
      * @return
@@ -72,15 +72,15 @@ public interface UserService extends IService<User> {
 
 
     /**
-     * 用户登录态注销
+     * User logout
      * @param request
-     * @return  脱敏后的用户列表
+     * @return Desensitized user list
      */
     boolean userLogout(HttpServletRequest request);
 
 
     /**
-     * 获取查询条件
+     * Get query conditions
      * @param userQueryRequest
      * @return
      */
@@ -88,7 +88,7 @@ public interface UserService extends IService<User> {
 
 
     /**
-     * 是否为管理员
+     * Check if user is admin
      *
      * @param user
      * @return

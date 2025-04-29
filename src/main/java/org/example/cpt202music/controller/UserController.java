@@ -37,11 +37,11 @@ public class UserController {
     private FileManager fileManager;
 
     /**
-     * 用户注册
+     * User Register
      */
     @PostMapping("/register")
     public BaseResponse<UserVO> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
-        // 这里用到的是自己的工具类
+        // This is your own utility class
         ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
@@ -49,14 +49,14 @@ public class UserController {
         String email = userRegisterRequest.getEmail();
         String code = userRegisterRequest.getCode();
         
-        // 不包含头像上传，传null
+        // It does not include the upload of avatars, and the upload is null
         long userId = userService.userRegister(userAccount, userPassword, checkPassword, email, code, null);
         User user = userService.getById(userId);
         return ResultUtils.success(userService.getUserVO(user));
     }
 
     /**
-     * 上传用户头像
+     * Upload a user profile picture
      */
     @PostMapping("/upload/avatar")
     public BaseResponse<String> uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
@@ -65,10 +65,10 @@ public class UserController {
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
         
         try {
-            // 上传头像
+            // Obtain the current logged-in user
             String avatarUrl = fileManager.uploadImage(file, "avatar/" + loginUser.getUserAccount());
             
-            // 更新用户头像
+            // Update the user's avatar
             User user = new User();
             user.setId(loginUser.getId());
             user.setUserAvatar(avatarUrl);
@@ -82,11 +82,11 @@ public class UserController {
     }
 
     /**
-     * 用户登录
+     * User Login
      */
     @PostMapping("/login")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
-        // 这里用到的是自己的工具类
+        // This is your own utility class
         ThrowUtils.throwIf(userLoginRequest == null, ErrorCode.PARAMS_ERROR);
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
@@ -97,7 +97,7 @@ public class UserController {
 
 
     /**
-     * 获取当前用户经过脱敏
+     * Get the current user to be desensitized
      * @param request
      * @return
      */
@@ -109,7 +109,7 @@ public class UserController {
 
 
     /**
-     * 用户取消登录态
+     * The user is logged in
      * @param request
      * @return
      */
@@ -122,7 +122,7 @@ public class UserController {
 
 
     /**
-     * 创建用户，这里写逻辑纯属是逻辑非常简单，没有写在service里面，就是很简单的增删改查
+     * Create a user, the logic here is purely very simple, not written in the service, it is very simple to add, delete, modify and check
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -140,7 +140,7 @@ public class UserController {
     }
 
     /**
-     * 根据 id 获取用户（仅管理员）
+     * Get users based on ID (admins only)
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -152,18 +152,18 @@ public class UserController {
     }
 
     /**
-     * 根据 id 获取包装类 给普通的用户使用
+     * Get the wrapper class based on ID for the average user
      */
     @GetMapping("/get/vo")
     public BaseResponse<UserVO> getUserVOById(long id) {
-        // 这里的逻辑是我调用上面的得到了user之后进行脱敏即可
+        // The logic here is that I call the above to get the user and then desensitize
         BaseResponse<User> response = getUserById(id);
         User user = response.getData();
         return ResultUtils.success(userService.getUserVO(user));
     }
 
     /**
-     * 删除用户
+     * Delete the user
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -176,7 +176,7 @@ public class UserController {
     }
 
     /**
-     * 更新用户
+     * Update User
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -185,7 +185,7 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User user = new User();
-        // 盐值，混淆密码
+        // Salt value, obfuscated passwords
         final String SALT = "wyf_da_niu_niu";
         String userPassword = userUpdateRequest.getUserPassword();
 
@@ -200,11 +200,11 @@ public class UserController {
     }
 
     /**
-     * 分页获取用户封装列表（仅管理员）
+     * Pagination to get a list of user encapsulations (admins only)
      *
      * @param userQueryRequest 查询请求参数
      */
-    // 这里其实用get请求也可以，只不过这里是为了接收一个对象，用post更加规范，post能够传的参数范围更大
+    // Its practical get request here can also be used, but here it is to receive an object, and it is more standardized to use post, and the range of parameters that can be passed by post is larger
     @PostMapping("/list/page/vo")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     // 这里的Page是mybatis为我们封装好的 ??????
@@ -223,7 +223,7 @@ public class UserController {
 
 
     /**
-     * 封禁用户并记录原因（仅管理员）
+     * Ban a user and log the reason (admins only)
      */
     @PostMapping("/ban/with-reason")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -240,34 +240,34 @@ public class UserController {
     }
 
     /**
-     * 根据用户ID上传头像（不需要登录）
+     * Upload an avatar based on user ID (no login required)
      */
     @PostMapping("/upload/avatar/by-id")
     public BaseResponse<String> uploadAvatarById(
             @RequestParam("file") MultipartFile file,
             @RequestParam("userId") Long userId) {
         
-        // 验证用户ID
-        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR, "用户ID无效: " + userId);
+        // Verify the user ID
+        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR, "User ID invaild: " + userId);
         
-        // 获取用户信息
+        // Obtain user information
         User user = userService.getById(userId);
-        System.out.println("请求上传头像的用户ID: " + userId + ", 查询结果: " + (user != null ? "用户存在" : "用户不存在"));
+        System.out.println("User ID requesting to upload an avatar: " + userId + ", Result: " + (user != null ? "User exist" : "User dont exist"));
         
-        // 如果用户不存在，尝试查询所有用户以进行调试
+        // If the user is not present, try querying all users for debugging
         if (user == null) {
             List<User> allUsers = userService.list();
-            System.out.println("当前系统中的所有用户ID: " + 
+            System.out.println("The user Id all in this system are:  " +
                 allUsers.stream().map(User::getId).collect(Collectors.toList()));
         }
         
-        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在，ID: " + userId);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "User doesnt exist，ID: " + userId);
         
         try {
-            // 上传头像
+            // Upload your profile picture
             String avatarUrl = fileManager.uploadImage(file, "avatar/" + user.getUserAccount());
             
-            // 更新用户头像
+            // Update the user's avatar
             User updateUser = new User();
             updateUser.setId(userId);
             updateUser.setUserAvatar(avatarUrl);
@@ -281,34 +281,34 @@ public class UserController {
     }
 
     /**
-     * 根据用户账号上传头像（不需要登录）
+     * Upload an avatar based on the user account (no login required)
      */
     @PostMapping("/upload/avatar/by-account")
     public BaseResponse<String> uploadAvatarByAccount(
             @RequestParam("file") MultipartFile file,
             @RequestParam("userAccount") String userAccount) {
         
-        // 验证账号
+        // Verify your account
         ThrowUtils.throwIf(userAccount == null || userAccount.isEmpty(), ErrorCode.PARAMS_ERROR);
         
-        // 根据账号查找用户
+        // Find users based on their accounts
         User user = userService.lambdaQuery().eq(User::getUserAccount, userAccount).one();
-        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "User doesnt exist");
         
         try {
-            // 上传头像
+            // Upload your profile picture
             String avatarUrl = fileManager.uploadImage(file, "avatar/" + userAccount);
             
-            // 更新用户头像
+            // Update the user's avatar
             User updateUser = new User();
             updateUser.setId(user.getId());
             updateUser.setUserAvatar(avatarUrl);
             boolean result = userService.updateById(updateUser);
-            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新头像失败");
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "Failed to update user's avatar");
             
             return ResultUtils.success(avatarUrl);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "头像上传失败：" + e.getMessage());
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Failed to upload user's avatar" + e.getMessage());
         }
     }
 }

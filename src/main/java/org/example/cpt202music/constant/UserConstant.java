@@ -2,24 +2,24 @@ package org.example.cpt202music.constant;
 
 
 /**
- * 用户常量
+ * User Constants
  */
 public interface UserConstant {
 
     /**
-     * 用户登录态键
+     * User login state key
      */
     String USER_LOGIN_STATE = "user_login";
 
-    //  region 权限
+    //  region Permissions
 
     /**
-     * 默认角色
+     * Default role
      */
     String DEFAULT_ROLE = "user";
 
     /**
-     * 管理员角色
+     * Administrator role
      */
     String ADMIN_ROLE = "admin";
 

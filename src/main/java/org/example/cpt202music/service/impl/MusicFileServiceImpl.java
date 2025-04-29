@@ -46,7 +46,7 @@ import java.io.IOException;
 
 /**
 * @author XLW200420
-* @description 针对表【music_file(音乐文件)】的数据库操作Service实现
+* @description Service implementation for database operations on table【music_file】
 * @createDate 2025-04-12 18:57:42
 */
 @Service
@@ -68,32 +68,32 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
 
     @Override
     public MusicFileVO uploadMusicFile(MultipartFile multipartFile, MusicFileUploadRequest musicFileUploadRequest, User loginUser, MultipartFile coverFile) {
-        // 校验参数
+        // Validate parameters
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
 
-        // 判断是新增还是更新
+        // Determine if it's a new file or an update
         Long musicFileID = null;
         if (musicFileUploadRequest.getId() != null) {
             musicFileID = musicFileUploadRequest.getId();
         }
 
-        // 如果是更新，判断文件是否已经存在
+        // If it's an update, check if the file already exists
         MusicFile oldMusicFile = null;
         if (musicFileID != null) {
             oldMusicFile = this.getById(musicFileID);
-            ThrowUtils.throwIf(oldMusicFile == null, ErrorCode.NOT_FOUND_ERROR, "文件不存在");
-            // 仅本人或者管理员可更新
+            ThrowUtils.throwIf(oldMusicFile == null, ErrorCode.NOT_FOUND_ERROR, "File does not exist");
+            // Only the owner or admin can update
             if (!oldMusicFile.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
         }
 
-        // 上传文件，得到文件信息
-        // 按照用户id划分目录
+        // Upload file and get file information
+        // Organize directory by user id
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
         UploadMusicFileResult uploadMusicFileResult = fileManager.uploadAudio(multipartFile, uploadPathPrefix);
 
-        // 构造要入库的文件信息
+        // Construct file information for database
         MusicFile musicFile = new MusicFile();
         musicFile.setUrl(uploadMusicFileResult.getUrl());
         musicFile.setName(uploadMusicFileResult.getName());
@@ -102,50 +102,50 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         musicFile.setIntroduction(uploadMusicFileResult.getIntroduction());
         musicFile.setFileSize(uploadMusicFileResult.getFileSize());
 
-        // 处理封面图片上传
+        // Handle cover image upload
         if (coverFile != null && !coverFile.isEmpty()) {
-            // 上传新封面
+            // Upload new cover
             String coverUrl = fileManager.uploadImage(coverFile, uploadPathPrefix);
             musicFile.setCoverUrl(coverUrl);
         } else if (StrUtil.isNotBlank(musicFileUploadRequest.getCoverUrl())) {
-            // 如果请求中包含了coverUrl，使用该URL
+            // If request contains coverUrl, use that URL
             musicFile.setCoverUrl(musicFileUploadRequest.getCoverUrl());
         } else if (oldMusicFile != null && StrUtil.isNotBlank(oldMusicFile.getCoverUrl())) {
-            // 如果是更新且原音乐有封面，保留原封面
+            // If updating and original music has a cover, keep the original cover
             musicFile.setCoverUrl(oldMusicFile.getCoverUrl());
         } else {
-            // 使用默认封面
+            // Use default cover
             musicFile.setCoverUrl("https://tse3-mm.cn.bing.net/th/id/OIP-C.1gt9Vw4SBXSmfCxgfXzOcQHaE8?w=239&h=180&c=7&r=0&o=5&dpr=1.6&pid=1.7");
         }
 
-        // 添加空值检查
+        // Add null checks
         if (uploadMusicFileResult.getDuration() != null) {
             musicFile.setDuration(uploadMusicFileResult.getDuration());
         } else {
-            musicFile.setDuration(0);  // 设置默认值
+            musicFile.setDuration(0);  // Set default value
         }
 
         if (uploadMusicFileResult.getBitRate() != null) {
             musicFile.setBitRate(uploadMusicFileResult.getBitRate());
         } else {
-            musicFile.setBitRate(0);  // 设置默认值
+            musicFile.setBitRate(0);  // Set default value
         }
 
         musicFile.setFileFormat(uploadMusicFileResult.getFileFormat());
         musicFile.setUserId(loginUser.getId());
 
-        // 补充审核参数
+        // Add review parameters
         this.fillReviewParams(musicFile, loginUser);
 
-        // 操作数据库
-        // 如果musicFileId不为空，表示更新，否则为新增
+        // Database operation
+        // If musicFileId is not null, it's an update; otherwise, it's a new addition
         if (musicFileID != null) {
             musicFile.setId(musicFileID);
             musicFile.setEditTime(new Date());
 
-            // 保留原有数据的其他字段（如果需要）
+            // Retain original data for other fields (if needed)
             if (oldMusicFile != null) {
-                // 如果需要保留其他字段，在这里添加
+                // Add other fields to retain here
                 if (musicFile.getCreateTime() == null) {
                     musicFile.setCreateTime(oldMusicFile.getCreateTime());
                 }
@@ -158,9 +158,9 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
 
 
         boolean result = this.saveOrUpdate(musicFile);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "文件上传失败，数据库操作失败");
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "File upload failed, database operation failed");
 
-        // 重新从数据库查询完整信息，确保返回的是最新数据
+        // Query database again for complete information to ensure returning the latest data
         MusicFile savedMusicFile = this.getById(musicFile.getId());
 
         return MusicFileVO.objToVo(savedMusicFile);
@@ -172,7 +172,7 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         if (MusicFileQueryRequest == null){
             return queryWrapper;
         }
-        // 从对象中取值
+        // Get values from object
 
         Long id = MusicFileQueryRequest.getId();
         String name = MusicFileQueryRequest.getName();
@@ -193,9 +193,9 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         String sortOrder = MusicFileQueryRequest.getSortOrder();
 
 
-        // 从多字段中搜索
+        // Search from multiple fields
         if (StrUtil.isNotBlank(searchText)) {
-            // 需要拼接查询条件
+            // Need to join query conditions
             queryWrapper.and(qw -> qw.like("name", searchText)
                     .or()
                     .like("introduction", searchText)
@@ -214,7 +214,7 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), "reviewerId", reviewerId);
 
 
-        // 使用 OR 条件连接 category 和 tags
+        // Use OR condition to connect category and tags
         if (StrUtil.isNotBlank(category)) {
             queryWrapper.eq("category", category);
         }
@@ -226,7 +226,7 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
             }
         }
 
-        // 排序
+        // Sorting
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
 
@@ -236,9 +236,9 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
 
     @Override
     public MusicFileVO getMusicFileVO(MusicFile musicFile, HttpServletRequest request) {
-        // 对象转封装类
+        // Convert object to wrapper class
         MusicFileVO musicFileVO = MusicFileVO.objToVo(musicFile);
-        // 关联查询用户信息
+        // Associate user information
         Long userId = musicFile.getUserId();
         if (userId != null && userId > 0) {
             User user = userService.getById(userId);
@@ -250,7 +250,7 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
 
 
     /**
-     * 分页获取图片封装
+     * Get paginated image wrapper
      */
     @Override
     public Page<MusicFileVO> getMusicFileVOPage(Page<MusicFile> musicFilePage, HttpServletRequest request) {
@@ -259,13 +259,13 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         if (CollUtil.isEmpty(musicFileList)) {
             return musicFileVOPage;
         }
-        // 对象列表 => 封装对象列表
+        // Object list => Wrapper object list
         List<MusicFileVO> musicFileVOList = musicFileList.stream().map(MusicFileVO::objToVo).collect(Collectors.toList());
-        // 1. 关联查询用户信息
+        // 1. Associate user information
         Set<Long> userIdSet = musicFileList.stream().map(MusicFile::getUserId).collect(Collectors.toSet());
         Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
                 .collect(Collectors.groupingBy(User::getId));
-        // 2. 填充信息
+        // 2. Fill in information
         musicFileVOList.forEach(musicFileVO -> {
             Long userId = musicFileVO.getUserId();
             User user = null;
@@ -283,55 +283,55 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
     @Override
     public void validMusicFile(MusicFile musicFile) {
         ThrowUtils.throwIf(musicFile == null, ErrorCode.PARAMS_ERROR);
-        // 从对象中取值
+        // Get values from object
         Long id = musicFile.getId();
         String url = musicFile.getUrl();
         String introduction = musicFile.getIntroduction();
-        // 修改数据时，id 不能为空，有参数则校验
-        ThrowUtils.throwIf(ObjUtil.isNull(id), ErrorCode.PARAMS_ERROR, "id 不能为空");
-        // 如果传入了url就校验
+        // When modifying data, id cannot be empty; validate parameters if present
+        ThrowUtils.throwIf(ObjUtil.isNull(id), ErrorCode.PARAMS_ERROR, "id cannot be empty");
+        // Validate if url is provided
         if (StrUtil.isNotBlank(url)) {
-            ThrowUtils.throwIf(url.length() > 1024, ErrorCode.PARAMS_ERROR, "url 过长");
+            ThrowUtils.throwIf(url.length() > 1024, ErrorCode.PARAMS_ERROR, "url is too long");
         }
-        // 如果传入了introduction就校验
+        // Validate if introduction is provided
         if (StrUtil.isNotBlank(introduction)) {
-            ThrowUtils.throwIf(introduction.length() > 800, ErrorCode.PARAMS_ERROR, "简介过长");
+            ThrowUtils.throwIf(introduction.length() > 800, ErrorCode.PARAMS_ERROR, "introduction is too long");
         }
     }
 
 
     @Override
     public void streamMusicFile(Long id, HttpServletResponse response) {
-        // 获取音乐文件信息
+        // Get music file information
         MusicFile musicFile = this.getById(id);
-        ThrowUtils.throwIf(musicFile == null, ErrorCode.NOT_FOUND_ERROR, "音乐文件不存在");
+        ThrowUtils.throwIf(musicFile == null, ErrorCode.NOT_FOUND_ERROR, "Music file does not exist");
 
-        // 从URL中提取文件路径
+        // Extract file path from URL
         String url = musicFile.getUrl();
 
-        // 提取COS路径
+        // Extract COS path
         String cosHost = cosClientConfig.getHost();
         String filepath = url;
         if (url.startsWith(cosHost)) {
             filepath = url.substring(cosHost.length());
         }
 
-        // 记录播放日志
-        log.error("用户正在播放音乐: ID=" + id + ", 名称=" + musicFile.getName() + ", 文件路径=" + filepath);
+        // Log playback
+        log.error("User is playing music: ID=" + id + ", Name=" + musicFile.getName() + ", File path=" + filepath);
 
         COSObjectInputStream cosObjectInput = null;
         try {
-            // 使用cosClient而不是cosManager
+            // Use cosClient instead of cosManager
             GetObjectRequest getObjectRequest = new GetObjectRequest(cosClientConfig.getBucket(), filepath);
             COSObject cosObject = cosClient.getObject(getObjectRequest);
             cosObjectInput = cosObject.getObjectContent();
             byte[] bytes = IOUtils.toByteArray(cosObjectInput);
 
-            // 设置HTTP头，支持音频播放
-            String contentType = "audio/mpeg"; // 默认MIME类型
+            // Set HTTP headers to support audio playback
+            String contentType = "audio/mpeg"; // Default MIME type
             String fileFormat = musicFile.getFileFormat().toLowerCase();
 
-            // 根据文件格式设置正确的MIME类型
+            // Set correct MIME type based on file format
             switch (fileFormat) {
                 case "mp3":
                     contentType = "audio/mpeg";
@@ -351,27 +351,27 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
                     break;
             }
 
-            // 设置响应头
+            // Set response headers
             response.setContentType(contentType);
             response.setContentLength(bytes.length);
 
-            // 设置允许范围请求，对于大音频文件和拖动进度条的功能很重要
+            // Set allow range requests, important for large audio files and progress bar dragging functionality
             response.setHeader("Accept-Ranges", "bytes");
 
-            // 写入音频数据到响应
+            // Write audio data to response
             response.getOutputStream().write(bytes);
             response.getOutputStream().flush();
 
         } catch (Exception e) {
-            log.error("音频流传输失败，id = " + id + ", 错误: " + e.getMessage(), e);
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "音频播放失败：" + e.getMessage());
+            log.error("Audio stream transmission failed, id = " + id + ", Error: " + e.getMessage(), e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "Audio playback failed: " + e.getMessage());
         } finally {
-            // 关闭流
+            // Close stream
             if (cosObjectInput != null) {
                 try {
                     cosObjectInput.close();
                 } catch (IOException e) {
-                    log.error("关闭COS输入流失败", e);
+                    log.error("Failed to close COS input stream", e);
                 }
             }
         }
@@ -379,18 +379,18 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
 
     @Override
     public List<MusicFileVO> getPlaylistByCategory(String category, HttpServletRequest request) {
-        // 创建查询请求对象
+        // Create query request object
         MusicFileQueryRequest queryRequest = new MusicFileQueryRequest();
         queryRequest.setCategory(category);
-        queryRequest.setPageSize(100); // 设置一个合理的上限
+        queryRequest.setPageSize(100); // Set a reasonable upper limit
 
-        // 查询数据库获取该分类下的音乐
+        // Query database to get music in this category
         Page<MusicFile> musicFilePage = this.page(
                 new Page<>(1, queryRequest.getPageSize()),
                 this.getQueryWrapper(queryRequest)
         );
 
-        // 转换为前端所需的VO对象列表
+        // Convert to VO object list needed by frontend
         return musicFilePage.getRecords().stream()
                 .map(musicFile -> this.getMusicFileVO(musicFile, request))
                 .collect(Collectors.toList());
@@ -404,14 +404,14 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
         if (id == null || reviewStatusEnum == null || MusicFileReviewStatusEnum.REVIEWING.equals(reviewStatusEnum)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 判断是否存在
+        // Check if exists
         MusicFile oldMusicFile = this.getById(id);
         ThrowUtils.throwIf(oldMusicFile == null, ErrorCode.NOT_FOUND_ERROR);
-        // 已是该状态
+        // Already in this state
         if (oldMusicFile.getReviewStatus().equals(reviewStatus)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请勿重复审核");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Do not review repeatedly");
         }
-        // 更新审核状态
+        // Update review status
         MusicFile updateMusicFile = new MusicFile();
         BeanUtils.copyProperties(musicFileReviewRequest, updateMusicFile);
         updateMusicFile.setReviewerId(loginUser.getId());
@@ -422,7 +422,7 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
 
 
     /**
-     * 填充审核参数
+     * Fill in review parameters
      * @param musicFile
      * @param loginUser
      *
@@ -431,13 +431,13 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
     @Override
     public void fillReviewParams(MusicFile musicFile, User loginUser) {
         if (userService.isAdmin(loginUser)) {
-            // 管理员自动过审核
+            // Admin automatically passes review
             musicFile.setReviewStatus(MusicFileReviewStatusEnum.PASS.getValue());
-            musicFile.setReviewMessage("管理员自动过审核");
+            musicFile.setReviewMessage("Admin automatic approval");
             musicFile.setReviewerId(loginUser.getId());
             musicFile.setReviewTime(new Date());
         } else {
-            // 非管理员，无论是编辑还是创建，都是需要审核
+            // Non-admin, whether editing or creating, requires review
             musicFile.setReviewStatus(MusicFileReviewStatusEnum.REVIEWING.getValue());
         }
     }
@@ -456,11 +456,11 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
     }
 
     /**
-     * 获取用于模糊搜索的查询包装器
-     * 该方法允许在多个字段（标签、分类、歌名、艺术家等）中进行模糊搜索
+     * Get query wrapper for fuzzy search
+     * This method allows fuzzy search across multiple fields (tags, categories, song names, artists, etc.)
      *
-     * @param musicFileQueryRequest 查询请求对象，包含搜索文本
-     * @return 配置了模糊搜索条件的查询包装器
+     * @param musicFileQueryRequest Query request object containing search text
+     * @return Query wrapper configured with fuzzy search conditions
      */
     @Override
     public QueryWrapper<MusicFile> getFuzzySearchQueryWrapper(MusicFileQueryRequest musicFileQueryRequest) {
@@ -469,41 +469,41 @@ public class MusicFileServiceImpl extends ServiceImpl<MusicFileMapper, MusicFile
             return queryWrapper;
         }
 
-        // 获取搜索关键词
+        // Get search keywords
         String searchText = musicFileQueryRequest.getSearchText();
         Integer reviewStatus = musicFileQueryRequest.getReviewStatus();
 
-        // 默认只显示已审核通过的音乐
+        // By default, only show approved music
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "reviewStatus", reviewStatus);
 
-        // 如果搜索文本为空，直接返回
+        // If search text is empty, return directly
         if (StrUtil.isBlank(searchText)) {
             return queryWrapper;
         }
 
-        // 构建多字段模糊搜索
+        // Build multi-field fuzzy search
         queryWrapper.and(wrapper -> {
-            // 搜索歌曲名称
+            // Search song name
             wrapper.like("name", searchText)
-                   // 搜索艺术家
+                   // Search artist
                    .or().like("artist", searchText)
-                   // 搜索专辑名
+                   // Search album name
                    .or().like("album", searchText)
-                   // 搜索简介
+                   // Search introduction
                    .or().like("introduction", searchText)
-                   // 搜索分类
+                   // Search category
                    .or().like("category", searchText)
-                   // 搜索标签 (标签以JSON格式存储)
+                   // Search tags (tags stored in JSON format)
                    .or().like("tags", searchText);
         });
 
-        // 应用分页排序条件
+        // Apply pagination sorting conditions
         String sortField = musicFileQueryRequest.getSortField();
         String sortOrder = musicFileQueryRequest.getSortOrder();
         if (StrUtil.isNotEmpty(sortField)) {
             queryWrapper.orderBy(true, sortOrder != null && sortOrder.equals("ascend"), sortField);
         } else {
-            // 默认按创建时间降序
+            // Default sort by creation time descending
             queryWrapper.orderByDesc("createTime");
         }
 

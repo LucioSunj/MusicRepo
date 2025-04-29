@@ -6,7 +6,7 @@ import lombok.Getter;
 public class BusinessException extends RuntimeException {
 
     /**
-     * 错误码
+     * Error code
      */
     private final int code;
 

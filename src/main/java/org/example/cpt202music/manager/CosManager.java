@@ -36,10 +36,10 @@ public class CosManager {
 
 
     /**
-     * 上传对象
+     * Upload object
      *
-     * @param key  唯一键
-     * @param file 文件
+     * @param key  Unique key
+     * @param file File
      */
     public PutObjectResult putObject(String key, File file) {
         PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key,
@@ -49,9 +49,9 @@ public class CosManager {
 
 
     /**
-     * 下载对象
+     * Download object
      *
-     * @param key 唯一键
+     * @param key Unique key
      */
     public COSObject getObject(String key) {
         GetObjectRequest getObjectRequest = new GetObjectRequest(cosClientConfig.getBucket(), key);
@@ -62,35 +62,35 @@ public class CosManager {
 
 
     /**
-     * 上传对象（附带音频信息）
+     * Upload object (with audio information)
      *
-     * @param key  唯一键
-     * @param file 音频文件
+     * @param key  Unique key
+     * @param file Audio file
      */
     public PutObjectResult putAudioObject(String key, File file) {
-        // 创建元数据对象
+        // Create metadata object
         ObjectMetadata metadata = new ObjectMetadata();
 
-        // 使用jaudiotagger获取音频文件信息
+        // Use jaudiotagger to get audio file information
         try {
-            // 解析音频文件
+            // Parse audio file
             AudioFile audioFile = AudioFileIO.read(file);
             AudioHeader audioHeader = audioFile.getAudioHeader();
             Tag tag = audioFile.getTag();
 
-            // 获取音频基本信息
-            int bitRate = (int) audioHeader.getBitRateAsNumber(); // 比特率
-            int sampleRate = audioHeader.getSampleRateAsNumber(); // 采样率
-            int length = audioHeader.getTrackLength(); // 时长(秒)
-            String format = audioHeader.getFormat(); // 格式
-            String encoding = audioHeader.getEncodingType(); // 编码类型
+            // Get basic audio information
+            int bitRate = (int) audioHeader.getBitRateAsNumber(); // Bit rate
+            int sampleRate = audioHeader.getSampleRateAsNumber(); // Sample rate
+            int length = audioHeader.getTrackLength(); // Duration (seconds)
+            String format = audioHeader.getFormat(); // Format
+            String encoding = audioHeader.getEncodingType(); // Encoding type
 
-            // 获取音频标签信息
+            // Get audio tag information
             String title = tag != null ? tag.getFirst("TITLE") : "";
             String artist = tag != null ? tag.getFirst("ARTIST") : "";
             String album = tag != null ? tag.getFirst("ALBUM") : "";
 
-            // 设置用户自定义元数据
+            // Set user-defined metadata
             Map<String, String> userMetadata = new HashMap<>();
             userMetadata.put("audio-bitrate", String.valueOf(bitRate));
             userMetadata.put("audio-duration", String.valueOf(length));
@@ -102,19 +102,19 @@ public class CosManager {
 
             metadata.setUserMetadata(userMetadata);
 
-            // 打印音频信息
-            System.out.println("音频信息: 格式=" + format + ", 时长=" + length + "秒, 比特率=" + bitRate + "kbps");
+            // Print audio information
+            System.out.println("Audio information: Format=" + format + ", Duration=" + length + "s, Bit rate=" + bitRate + "kbps");
 
         } catch (Exception e) {
-            // 处理异常但不阻止上传
-            System.out.println("获取音频信息失败: " + e.getMessage());
+            // Handle exception but don't block the upload
+            System.out.println("Failed to get audio information: " + e.getMessage());
         }
 
-        // 创建带有元数据的上传请求
+        // Create upload request with metadata
         PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key, file);
-        putObjectRequest.withMetadata(metadata);  // 使用withMetadata方法设置元数据
+        putObjectRequest.withMetadata(metadata);  // Use withMetadata method to set metadata
 
-        // 上传文件
+        // Upload file
         return cosClient.putObject(putObjectRequest);
     }
 

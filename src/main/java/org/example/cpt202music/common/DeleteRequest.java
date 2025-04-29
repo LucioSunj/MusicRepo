@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 
-// 通用的删除请求类
+// A generic class for deletion requests
 @Data
 public class DeleteRequest implements Serializable {
 

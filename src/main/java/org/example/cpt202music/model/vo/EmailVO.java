@@ -5,40 +5,30 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * 邮箱验证码视图对象
- */
+
 @Data
 public class EmailVO implements Serializable {
 
-    /**
-     * 邮箱地址
-     */
+
     private String email;
 
-    /**
-     * 验证码
-     */
+
     private String code;
 
     /**
-     * 验证码状态：0-未使用，1-已使用
+     * Captcha status: 0 - Unused, 1 - Used
      */
     private Integer status;
 
     /**
-     * 验证码过期时间
+     * The expiration time of the verification code
      */
     private Date expireTime;
 
-    /**
-     * 创建时间
-     */
+
     private Date createTime;
 
-    /**
-     * 更新时间
-     */
+
     private Date updateTime;
 
     private static final long serialVersionUID = 1L;

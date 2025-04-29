@@ -17,9 +17,7 @@ public enum MusicFileReviewStatusEnum {
         this.value = value;  
     }  
   
-    /**  
-     * 根据 value 获取枚举  
-     */  
+
     public static MusicFileReviewStatusEnum getEnumByValue(Integer value) {
         if (ObjUtil.isEmpty(value)) {
             return null;  

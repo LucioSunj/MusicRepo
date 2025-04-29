@@ -7,11 +7,11 @@ import java.util.List;
 
 
 /**
- * 编辑请求
- * 一般是给用户使用
+ * Edit request
+ * Generally used by users
  *
  * @author cpt202
- * @description 编辑请求
+ * @description Edit request
  * @date 2022/05/05
  */
 @Data
@@ -25,22 +25,22 @@ public class MusicFileEditRequest implements Serializable {
     private String artist;
 
     /**
-     * 名字
+     * Name
      */
     private String name;
 
     /**
-     * 介绍
+     * Introduction
      */
     private String introduction;
 
     /**
-     * 分类
+     * Category
      */
     private String category;
 
     /**
-     * 标签
+     * Tags
      */
     private List<String> tags;
 

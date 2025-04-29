@@ -9,12 +9,12 @@ public class RedisConstants {
     public static final long VERIFY_CODE_TTL_MINUTES = 5L;
 
     /**
-     * 注册用户信息在Redis中的key前缀
+     * Key prefix for registered user information in Redis
      */
     public static final String REGISTER_USER_KEY = "register:user:";
 
     /**
-     * 注册用户信息在Redis中的过期时间（分钟）
+     * Time-to-live (TTL) for registered user information in Redis (minutes)
      */
     public static final long REGISTER_USER_TTL_MINUTES = 10;
 

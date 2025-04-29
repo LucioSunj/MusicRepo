@@ -5,12 +5,12 @@ import lombok.Data;
 @Data
 public class EmailRequest {
     /**
-     * 邮箱
+     * Email
      */
     private String email;
 
     /**
-     * 验证码
+     * verify code
      */
     private String code;
 } 
