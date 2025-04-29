@@ -1,22 +1,5 @@
 # 🎶 CPT202 Music Platform Backend
 
-<p align="center">
-  <!-- Assuming no specific backend logo, using a generic server icon -->
-  <img src="https://img.icons8.com/plasticine/100/000000/server.png" alt="Backend Server Icon" width="100" height="auto">
-</p>
-
-<p align="center">
-  <a href="#overview">Overview</a> •
-  <a href="#features">Features</a> •
-  <a href="#technology-stack">Technology Stack</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#project-structure">Project Structure</a> •
-  <a href="#api-documentation">API Documentation</a> •
-  <a href="#configuration">Configuration</a> •
-  <a href="#database-setup">Database Setup</a> •
-  <a href="#contributing">Contributing</a>
-</p>
-
 ## 📋 Overview
 
 This repository contains the backend codebase for the CPT202 Music Platform. It provides the RESTful API services required by the frontend application for music sharing, discovery, user management, and administrative tasks.
@@ -58,18 +41,6 @@ The backend exposes a comprehensive set of APIs covering:
 - Handles file uploads, deletions, and URL generation.
 
 ## 🛠️ Technology Stack
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Java-17-007396?style=for-the-badge&logo=java&logoColor=white" alt="Java 17">
-  <img src="https://img.shields.io/badge/Spring_Boot-2.7.6-6DB33F?style=for-the-badge&logo=spring&logoColor=white" alt="Spring Boot">
-  <img src="https://img.shields.io/badge/Maven-3.x-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white" alt="Maven">
-  <img src="https://img.shields.io/badge/MySQL-8.x-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
-  <img src="https://img.shields.io/badge/Redis-6.x-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
-  <img src="https://img.shields.io/badge/MyBatis_Plus-3.5.x-blue?style=for-the-badge" alt="MyBatis Plus">
-  <img src="https://img.shields.io/badge/Tencent_Cloud_COS-blue?style=for-the-badge&logo=tencentcloud&logoColor=white" alt="Tencent Cloud COS">
-  <img src="https://img.shields.io/badge/Knife4j-4.x-blue?style=for-the-badge" alt="Knife4j">
-  <img src="https://img.shields.io/badge/Docker-blue?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
-</p>
 
 - **Core Framework**: Spring Boot 2.7.6
 - **Language**: Java 17
@@ -245,4 +216,4 @@ Please adhere to the existing code style and provide clear commit messages.
 - [Knife4j](https://doc.xiaominfo.com/)
 - [Tencent Cloud COS](https://cloud.tencent.com/product/cos)
 - [Hutool](https://hutool.cn/)
-- [Lombok](https://projectlombok.org/)
+- [Lombok](https://projectlombok.org/) 
