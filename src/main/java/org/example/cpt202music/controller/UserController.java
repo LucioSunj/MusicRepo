@@ -320,22 +320,22 @@ public class UserController {
     @PostMapping("/increase/ban-number")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> increaseUserBanNumber(@RequestParam("userId") Long userId) {
-        // 验证参数
+        // Verify the parameters
         ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR);
         
-        // 查询用户是否存在
+        // Query whether a user exists
         User user = userService.getById(userId);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
         
-        // 创建更新对象
+        // Create an update object
         User updateUser = new User();
         updateUser.setId(userId);
         
-        // 将当前的banNumber值+1
+        // +1 the current banNumber value
         Integer currentBanNumber = user.getBanNumber() != null ? user.getBanNumber() : 0;
         updateUser.setBanNumber(currentBanNumber + 1);
         
-        // 更新用户信息
+        // Update user information
         boolean result = userService.updateById(updateUser);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新失败");
         

@@ -383,6 +383,7 @@ public class MusicFileController {
         musicFileQueryRequest.setCurrent((int) current);
         musicFileQueryRequest.setPageSize((int) pageSize);
         musicFileQueryRequest.setCategory(category);
+        musicFileQueryRequest.setReviewStatus(1);
         List<String> tags = new ArrayList<>();
         tags.add(category);
         musicFileQueryRequest.setTags(tags);
