@@ -147,7 +147,22 @@ public class MusicFileVO implements Serializable {
         musicFileVO.setCreateTime(musicFile.getCreateTime());
         musicFileVO.setUpdateTime(musicFile.getUpdateTime());
         musicFileVO.setEditTime(musicFile.getEditTime());
-        musicFileVO.setCoverUrl(musicFile.getCoverUrl());  // 设置coverUrl
+        musicFileVO.setCoverUrl(musicFile.getCoverUrl());
+        
+        // 添加category属性设置
+        musicFileVO.setCategory(musicFile.getCategory());
+        
+        // 添加tags属性设置 - 将JSON字符串转换为List<String>
+        String tagsJson = musicFile.getTags();
+        if (tagsJson != null && !tagsJson.isEmpty()) {
+            try {
+                List<String> tagsList = JSONUtil.toList(tagsJson, String.class);
+                musicFileVO.setTags(tagsList);
+            } catch (Exception e) {
+                // 处理JSON解析异常
+                System.err.println("解析tags时出错: " + e.getMessage());
+            }
+        }
         
         return musicFileVO;
     }
