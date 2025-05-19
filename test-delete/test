@@ -1,0 +1,369 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: CPT202Music
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://118.31.173.230:3306/music
+    username: music
+    password: 123456
+#  # Redis Configuration
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    timeout: 5000
+  #邮件服务配置
+  mail:
+    #smtp服务主机  163邮箱则为smtp.163.com
+    host: smtp.qq.com
+    #服务协议
+    protocol: smtp
+    # 编码集
+    default-encoding: UTF-8
+    #发送邮件的账户,开通服务的邮箱
+    username: 2667180048@qq.com
+    #授权码
+    password: hrzskrmrhxwneafd
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+#  # Redis Configuration
+#  redis:
+#    database: 0
+#    host: 127.0.0.1
+#    port: 6379
+#    timeout: 5000
+#  #邮件服务配置
+#  mail:
+#    #smtp服务主机  163邮箱则为smtp.163.com
+#    host: smtp.qq.com
+#    #服务协议
+#    protocol: smtp
+#    # 编码集
+#    default-encoding: UTF-8
+#    #发送邮件的账户,开通服务的邮箱
+#    username: 2667180048@qq.com
+#    #授权码
+#    password: hrzskrmrhxwneafd
+#    test-connection: true
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+#            required: true
+  profiles:
+    active: local
+
+mybatis-plus:
+  configuration:
+    # mybatis 配置
+    map-underscore-to-camel-case: false
+    # 仅在开发阶段打印日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted  # 逻辑删除，1为删除
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# 接口文档配置
+# 接口文档配置
+knife4j:
+  enable: true
+  openapi:
+    title: "接口文档"
+    version: 1.0
+    group:
+      default:
+        api-rule: package
+        api-rule-resources:
+          - org.example.cpt202music.controllerserver:
+                                                port: 8080
+                                                servlet:
+                                                  context-path: /api
+
+                                              spring:
+                                                application:
+                                                  name: CPT202Music
+                                                datasource:
+                                                  driver-class-name: com.mysql.cj.jdbc.Driver
+                                                  url: jdbc:mysql://118.31.173.230:3306/music
+                                                  username: music
+                                                  password: 123456
+                                              #  # Redis Configuration
+                                                redis:
+                                                  database: 0
+                                                  host: 127.0.0.1
+                                                  port: 6379
+                                                  timeout: 5000
+                                                #邮件服务配置
+                                                mail:
+                                                  #smtp服务主机  163邮箱则为smtp.163.com
+                                                  host: smtp.qq.com
+                                                  #服务协议
+                                                  protocol: smtp
+                                                  # 编码集
+                                                  default-encoding: UTF-8
+                                                  #发送邮件的账户,开通服务的邮箱
+                                                  username: 2667180048@qq.com
+                                                  #授权码
+                                                  password: hrzskrmrhxwneafd
+                                                  test-connection: true
+                                                  properties:
+                                                    mail:
+                                                      smtp:
+                                                        auth: true
+                                                        starttls:
+                                                          enable: true
+                                                          required: true
+
+                                              #  # Redis Configuration
+                                              #  redis:
+                                              #    database: 0
+                                              #    host: 127.0.0.1
+                                              #    port: 6379
+                                              #    timeout: 5000
+                                              #  #邮件服务配置
+                                              #  mail:
+                                              #    #smtp服务主机  163邮箱则为smtp.163.com
+                                              #    host: smtp.qq.com
+                                              #    #服务协议
+                                              #    protocol: smtp
+                                              #    # 编码集
+                                              #    default-encoding: UTF-8
+                                              #    #发送邮件的账户,开通服务的邮箱
+                                              #    username: 2667180048@qq.com
+                                              #    #授权码
+                                              #    password: hrzskrmrhxwneafd
+                                              #    test-connection: true
+                                              #    properties:
+                                              #      mail:
+                                              #        smtp:
+                                              #          auth: true
+                                              #          starttls:
+                                              #            enable: true
+                                              #            required: true
+                                                profiles:
+                                                  active: local
+
+                                              mybatis-plus:
+                                                configuration:
+                                                  # mybatis 配置
+                                                  map-underscore-to-camel-case: false
+                                                  # 仅在开发阶段打印日志
+                                                  log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+                                                global-config:
+                                                  db-config:
+                                                    logic-delete-field: isDeleted  # 逻辑删除，1为删除
+                                                    logic-delete-value: 1
+                                                    logic-not-delete-value: 0
+
+                                              # 接口文档配置
+                                              # 接口文档配置
+                                              knife4j:
+                                                enable: true
+                                                openapi:
+                                                  title: "接口文档"
+                                                  version: 1.0
+                                                  group:
+                                                    default:
+                                                      api-rule: package
+                                                      api-rule-resources:
+                                                        - org.example.cpt202music.controllerserver:
+                                                                                              port: 8080
+                                                                                              servlet:
+                                                                                                context-path: /api
+
+                                                                                            spring:
+                                                                                              application:
+                                                                                                name: CPT202Music
+                                                                                              datasource:
+                                                                                                driver-class-name: com.mysql.cj.jdbc.Driver
+                                                                                                url: jdbc:mysql://118.31.173.230:3306/music
+                                                                                                username: music
+                                                                                                password: 123456
+                                                                                            #  # Redis Configuration
+                                                                                              redis:
+                                                                                                database: 0
+                                                                                                host: 127.0.0.1
+                                                                                                port: 6379
+                                                                                                timeout: 5000
+                                                                                              #邮件服务配置
+                                                                                              mail:
+                                                                                                #smtp服务主机  163邮箱则为smtp.163.com
+                                                                                                host: smtp.qq.com
+                                                                                                #服务协议
+                                                                                                protocol: smtp
+                                                                                                # 编码集
+                                                                                                default-encoding: UTF-8
+                                                                                                #发送邮件的账户,开通服务的邮箱
+                                                                                                username: 2667180048@qq.com
+                                                                                                #授权码
+                                                                                                password: hrzskrmrhxwneafd
+                                                                                                test-connection: true
+                                                                                                properties:
+                                                                                                  mail:
+                                                                                                    smtp:
+                                                                                                      auth: true
+                                                                                                      starttls:
+                                                                                                        enable: true
+                                                                                                        required: true
+
+                                                                                            #  # Redis Configuration
+                                                                                            #  redis:
+                                                                                            #    database: 0
+                                                                                            #    host: 127.0.0.1
+                                                                                            #    port: 6379
+                                                                                            #    timeout: 5000
+                                                                                            #  #邮件服务配置
+                                                                                            #  mail:
+                                                                                            #    #smtp服务主机  163邮箱则为smtp.163.com
+                                                                                            #    host: smtp.qq.com
+                                                                                            #    #服务协议
+                                                                                            #    protocol: smtp
+                                                                                            #    # 编码集
+                                                                                            #    default-encoding: UTF-8
+                                                                                            #    #发送邮件的账户,开通服务的邮箱
+                                                                                            #    username: 2667180048@qq.com
+                                                                                            #    #授权码
+                                                                                            #    password: hrzskrmrhxwneafd
+                                                                                            #    test-connection: true
+                                                                                            #    properties:
+                                                                                            #      mail:
+                                                                                            #        smtp:
+                                                                                            #          auth: true
+                                                                                            #          starttls:
+                                                                                            #            enable: true
+                                                                                            #            required: true
+                                                                                              profiles:
+                                                                                                active: local
+
+                                                                                            mybatis-plus:
+                                                                                              configuration:
+                                                                                                # mybatis 配置
+                                                                                                map-underscore-to-camel-case: false
+                                                                                                # 仅在开发阶段打印日志
+                                                                                                log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+                                                                                              global-config:
+                                                                                                db-config:
+                                                                                                  logic-delete-field: isDeleted  # 逻辑删除，1为删除
+                                                                                                  logic-delete-value: 1
+                                                                                                  logic-not-delete-value: 0
+
+                                                                                            # 接口文档配置
+                                                                                            # 接口文档配置
+                                                                                            knife4j:
+                                                                                              enable: true
+                                                                                              openapi:
+                                                                                                title: "接口文档"
+                                                                                                version: 1.0
+                                                                                                group:
+                                                                                                  default:
+                                                                                                    api-rule: package
+                                                                                                    api-rule-resources:
+                                                                                                      - org.example.cpt202music.controllerserver:
+                                                                                                                                            port: 8080
+                                                                                                                                            servlet:
+                                                                                                                                              context-path: /api
+
+                                                                                                                                          spring:
+                                                                                                                                            application:
+                                                                                                                                              name: CPT202Music
+                                                                                                                                            datasource:
+                                                                                                                                              driver-class-name: com.mysql.cj.jdbc.Driver
+                                                                                                                                              url: jdbc:mysql://118.31.173.230:3306/music
+                                                                                                                                              username: music
+                                                                                                                                              password: 123456
+                                                                                                                                          #  # Redis Configuration
+                                                                                                                                            redis:
+                                                                                                                                              database: 0
+                                                                                                                                              host: 127.0.0.1
+                                                                                                                                              port: 6379
+                                                                                                                                              timeout: 5000
+                                                                                                                                            #邮件服务配置
+                                                                                                                                            mail:
+                                                                                                                                              #smtp服务主机  163邮箱则为smtp.163.com
+                                                                                                                                              host: smtp.qq.com
+                                                                                                                                              #服务协议
+                                                                                                                                              protocol: smtp
+                                                                                                                                              # 编码集
+                                                                                                                                              default-encoding: UTF-8
+                                                                                                                                              #发送邮件的账户,开通服务的邮箱
+                                                                                                                                              username: 2667180048@qq.com
+                                                                                                                                              #授权码
+                                                                                                                                              password: hrzskrmrhxwneafd
+                                                                                                                                              test-connection: true
+                                                                                                                                              properties:
+                                                                                                                                                mail:
+                                                                                                                                                  smtp:
+                                                                                                                                                    auth: true
+                                                                                                                                                    starttls:
+                                                                                                                                                      enable: true
+                                                                                                                                                      required: true
+
+                                                                                                                                          #  # Redis Configuration
+                                                                                                                                          #  redis:
+                                                                                                                                          #    database: 0
+                                                                                                                                          #    host: 127.0.0.1
+                                                                                                                                          #    port: 6379
+                                                                                                                                          #    timeout: 5000
+                                                                                                                                          #  #邮件服务配置
+                                                                                                                                          #  mail:
+                                                                                                                                          #    #smtp服务主机  163邮箱则为smtp.163.com
+                                                                                                                                          #    host: smtp.qq.com
+                                                                                                                                          #    #服务协议
+                                                                                                                                          #    protocol: smtp
+                                                                                                                                          #    # 编码集
+                                                                                                                                          #    default-encoding: UTF-8
+                                                                                                                                          #    #发送邮件的账户,开通服务的邮箱
+                                                                                                                                          #    username: 2667180048@qq.com
+                                                                                                                                          #    #授权码
+                                                                                                                                          #    password: hrzskrmrhxwneafd
+                                                                                                                                          #    test-connection: true
+                                                                                                                                          #    properties:
+                                                                                                                                          #      mail:
+                                                                                                                                          #        smtp:
+                                                                                                                                          #          auth: true
+                                                                                                                                          #          starttls:
+                                                                                                                                          #            enable: true
+                                                                                                                                          #            required: true
+                                                                                                                                            profiles:
+                                                                                                                                              active: local
+
+                                                                                                                                          mybatis-plus:
+                                                                                                                                            configuration:
+                                                                                                                                              # mybatis 配置
+                                                                                                                                              map-underscore-to-camel-case: false
+                                                                                                                                              # 仅在开发阶段打印日志
+                                                                                                                                              log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+                                                                                                                                            global-config:
+                                                                                                                                              db-config:
+                                                                                                                                                logic-delete-field: isDeleted  # 逻辑删除，1为删除
+                                                                                                                                                logic-delete-value: 1
+                                                                                                                                                logic-not-delete-value: 0
+
+                                                                                                                                          # 接口文档配置
+                                                                                                                                          # 接口文档配置
+                                                                                                                                          knife4j:
+                                                                                                                                            enable: true
+                                                                                                                                            openapi:
+                                                                                                                                              title: "接口文档"
+                                                                                                                                              version: 1.0
+                                                                                                                                              group:
+                                                                                                                                                default:
+                                                                                                                                                  api-rule: package
+                                                                                                                                                  api-rule-resources:
+                                                                                                                                                    - org.example.cpt202music.controller
